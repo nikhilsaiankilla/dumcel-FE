@@ -1,108 +1,60 @@
-"use client"
+"use client";
 
-import { Menu, X } from 'lucide-react';
-import { bitcountSingle } from '@/fonts/font'
-import Image from 'next/image'
-import Link from 'next/link'
-import React, { useState } from 'react'
+import { Menu, X } from "lucide-react";
+import { bitcountSingle } from "@/fonts/font";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState } from "react";
+import { Button } from "./ui/button";
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
+    // Array of main nav links
+    const navLinks = [
+        { href: "/dashboard", label: "Dashboard" },
+        { href: "/deploy", label: "Deploy" },
+        { href: "/", label: "Home" },
+        { href: "/pricing", label: "Pricing" },
+    ];
+
+    // Array of action buttons
+    const actionLinks: { href: string; label: string; variant: "outline" | "default" | "link" | "destructive" | "secondary" | "ghost" }[] = [
+        { href: "/login", label: "Log In", variant: "outline" },
+        { href: "/contact", label: "Contact", variant: "outline" },
+        { href: "/signup", label: "Sign up", variant: "default" },
+    ];
+
     return (
-        <nav className="relative flex items-center justify-between w-full px-4 bg-white sm:px-7 md:px-20 py-5 overflow-x-hidden">
-            <Link href="/" className="flex items-end justify-center gap-2">
-                <div className="bg-sidebar-primary flex aspect-square size-8 items-center justify-center rounded-lg">
-                    <Image src="/logo.png" alt="Dumcel" width={24} height={24} />
-                </div>
-                <h1
-                    className={`md:block hidden text-black text-xl font-semibold cursor-pointer tracking-wide ${bitcountSingle.className}`}
-                >
-                    Dumcel
-                </h1>
-            </Link>
+        <nav className="w-full px-5 md:px-10 lg:px-20 py-4 flex items-center justify-between bg-black">
+            <div className="flex items-end justify-between gap-5">
+                <Link href="/" className="flex items-end gap-2">
+                    <Image src="/logo.png" alt="logo" width={40} height={40} className="cursor-pointer" />
+                    <span className="text-white font-semibold text-xl">Dumcel</span>
+                </Link>
 
-            {/* Desktop menu */}
-            <ul
-                className={`md:flex hidden text-black items-center gap-6 ${bitcountSingle.className}`}
-            >
-                <li>
-                    <Link
-                        href="/"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Home
-                    </Link>
-                </li>
-                <li>
-                    <Link
-                        href="/dashboard"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Dashboard
-                    </Link>
-                </li>
-                <li>
-                    <Link
-                        href="/"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Deploy
-                    </Link>
-                </li>
-                <li>
-                    <Link
-                        href="/"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Login
-                    </Link>
-                </li>
-            </ul>
+                <ul className="flex items-end gap-2">
+                    {navLinks.map((link) => (
+                        <li key={link.href}>
+                            <Link
+                                href={link.href}
+                                className="text-gray-300 text-sm cursor-pointer px-3 py-1.5 rounded-2xl hover:bg-gray-900 transition-all duration-150 ease-linear"
+                            >
+                                {link.label}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
-            {/* Mobile menu */}
-            <ul
-                className={`md:hidden w-screen h-screen text-black bg-white flex items-center justify-center flex-col gap-10 fixed top-0 ${isOpen ? "right-0" : "-right-full"} z-40 transition-all duration-300 ease-linear ${bitcountSingle.className}`}
-            >
-                <li>
-                    <Link
-                        href="/"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Home
+            <div className="flex items-center gap-4">
+                {actionLinks.map((link) => (
+                    <Link key={link.href} href={link.href} className="text-gray-300 text-sm cursor-pointer">
+                        <Button variant={link.variant} className="cursor-pointer px-3 py-1">
+                            {link.label}
+                        </Button>
                     </Link>
-                </li>
-                <li>
-                    <Link
-                        href="/dashboard"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Dashboard
-                    </Link>
-                </li>
-                <li>
-                    <Link
-                        href="/"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Deploy
-                    </Link>
-                </li>
-                <li>
-                    <Link
-                        href="/"
-                        className="text-lg cursor-pointer hover:text-purple-400 transition-colors duration-200"
-                    >
-                        Login
-                    </Link>
-                </li>
-            </ul>
-
-            {/* Mobile toggle button */}
-            <div className="absolute right-5 top-6 md:hidden z-50">
-                <button onClick={() => setIsOpen(!isOpen)}>
-                    {isOpen ? <X className='text-black' /> : <Menu className='text-black' />}
-                </button>
+                ))}
             </div>
         </nav>
     );
