@@ -2,16 +2,17 @@ import Image from "next/image"
 import Navbar from "@/components/Navbar"
 import Btn from "@/components/Btn"
 import Link from "next/link"
-import { Globe, Merge } from "lucide-react"
+import { Globe, Merge, TrendingUp } from "lucide-react"
+import Footer from "@/components/Footer"
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="bg-black border-b border-t border-gray-300/20 text-center py-3 text-white text-sm">
+      <div className="bg-background border-b border-t border-gray-300/20 text-center py-3 text-white text-sm">
         Im Working on this project, stay tuned for updates!
       </div>
-      <main className="w-full min-h-screen scroll-smooth relative bg-black">
+      <main className="w-full min-h-screen scroll-smooth relative bg-background">
         {/* Hero Section */}
         <section className="w-full relative max-w-7xl mx-auto h-screen border-[0.5px] border-gray-300/20 overflow-hidden">
           {/* 1. Gradient Background: Apply a linear gradient from left (green/teal), center (purple/blue), to right (orange/red). 
@@ -62,16 +63,146 @@ export default function Home() {
               </div>
             </div>
           </div>
-
-          {/* <Image src='/logo.png' alt="logo" width={100} height={100} className="w-40 h-auto object-cover mx-auto md:mt-20" /> */}
         </section>
 
-        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-gray-300/20 overflow-hidden py-20">
-          <h1 className="text-3xl md:text-4xl font-normal text-white text-center mx-5">Develop with your favorite React Applications {">_"}
+        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-gray-300/20 overflow-hidden py-20 text-center">
+          <h1 className="text-xl md:text-4xl font-normal text-white mx-5">
+            Develop with your favorite React Applications {">_"}
           </h1>
-          <h1 className="text-3xl md:text-4xl font-normal text-white text-center mx-5 flex items-center justify-center gap-2">Launch globally <Globe size={20} />, instantly  Keep pushing code, we&apos;ll handle the rest. <Merge size={20} /></h1>
+
+          <div className="flex flex-wrap items-center justify-center gap-2 mt-4 text-white text-xl md:text-4xl font-normal">
+            <span>Launch globally</span>
+            <Globe size={24} />
+            <span>, instantly. Keep pushing code, we&apos;ll handle the rest.</span>
+            <Merge size={24} />
+          </div>
+        </section>
+
+        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-gray-300/20 overflow-hidden text-center grid grid-cols-1 md:grid-cols-2">
+          <div className="border-[0.5px] border-gray-300/20 h-full w-full p-10">
+            <h1 className="text-lg font-normal text-gray-500 text-left">
+              {">_"} One Click Deployments
+            </h1>
+
+            <p className="text-white text-base md:text-lg leading-relaxed text-left mt-5">
+              Deploy your React applications instantly with a single click.
+              We handle the builds, scaling, and delivery so you can focus on building.
+            </p>
+
+            <div className="flex items-center justify-center mt-10">
+              <Image
+                src="/logo.png"
+                alt="Analytics"
+                className="w-3/5 object-contain aspect-square"
+                width={80}
+                unoptimized
+                height={80}
+              />
+            </div>
+
+          </div>
+          <div className="border-[0.5px] border-gray-300/20 h-full w-full p-10">
+            <h1 className="text-lg font-normal text-gray-500 text-left flex items-center gap-5">
+              <TrendingUp /> Analytics
+            </h1>
+            <p className="text-white text-base md:text-lg leading-relaxed text-left mt-5">
+              Track deployments, user engagement, and performance metrics in real time.
+              Gain insights that help you optimize and grow efficiently.
+            </p>
+
+            <div className="flex items-center justify-center mt-10">
+              <Image
+                src="/logo.png"
+                alt="Analytics"
+                className="w-3/5 object-contain aspect-square"
+                width={80}
+                unoptimized
+                height={80}
+              />
+            </div>
+
+          </div>
+        </section>
+
+        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-t-0 border-gray-300/20 overflow-hidden py-20 px-10">
+          <h1 className="text-lg font-normal text-gray-500 text-left flex items-center gap-5">
+            <TrendingUp /> Analytics
+          </h1>
+          <p className="text-white text-base md:text-lg max-w-3xl leading-relaxed text-left mt-3">
+            Track deployments, user engagement, and performance metrics in real time.
+            Gain insights that help you optimize and grow efficiently.
+          </p>
+
+          <div className="flex items-center justify-center mt-10">
+            <Image
+              src="https://www.shutterstock.com/image-vector/financial-growth-revenue-graph-vector-600nw-762649159.jpg"
+              alt="Analytics"
+              className="w-full aspect-video"
+              width={80}
+              unoptimized
+              height={80}
+            />
+          </div>
+        </section>
+
+        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-gray-300/20 overflow-hidden text-center grid grid-cols-1 md:grid-cols-2">
+          <div className="border-[0.5px] border-gray-300/20 h-full w-full p-10">
+            <h1 className="text-lg font-normal text-gray-500 text-left">
+              {">_"} One Click Deployments
+            </h1>
+
+            <p className="text-white text-base md:text-lg leading-relaxed text-left mt-5">
+              Deploy your React applications instantly with a single click.
+              We handle the builds, scaling, and delivery so you can focus on building.
+            </p>
+
+            <div className="flex items-center justify-center mt-10">
+              <Image
+                src="/logo.png"
+                alt="Analytics"
+                className="w-3/5 object-contain aspect-square"
+                width={80}
+                unoptimized
+                height={80}
+              />
+            </div>
+
+          </div>
+          <div className="border-[0.5px] border-gray-300/20 h-full w-full p-10">
+            <h1 className="text-lg font-normal text-gray-500 text-left flex items-center gap-5">
+              <TrendingUp /> Analytics
+            </h1>
+            <p className="text-white text-base md:text-lg leading-relaxed text-left mt-5">
+              Track deployments, user engagement, and performance metrics in real time.
+              Gain insights that help you optimize and grow efficiently.
+            </p>
+
+            <div className="flex items-center justify-center mt-10">
+              <Image
+                src="/logo.png"
+                alt="Analytics"
+                className="w-3/5 object-contain aspect-square"
+                width={80}
+                unoptimized
+                height={80}
+              />
+            </div>
+
+          </div>
+        </section>
+
+        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-t-0 border-gray-300/20 overflow-hidden py-20 px-10">
+          <h1 className="text-lg font-normal text-gray-500 text-left flex items-center gap-5">
+            <TrendingUp /> Analytics
+          </h1>
+          <p className="text-white text-base md:text-lg max-w-3xl leading-relaxed text-left mt-3">
+            Track deployments, user engagement, and performance metrics in real time.
+            Gain insights that help you optimize and grow efficiently.
+          </p>
         </section>
       </main>
+
+      <Footer />
     </>
   )
 }
