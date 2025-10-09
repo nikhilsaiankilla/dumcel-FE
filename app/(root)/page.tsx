@@ -23,22 +23,20 @@ export default function Home() {
           <div
             className="absolute inset-0 z-0 bg-black" // Added bg-black as a solid base color
             style={{
-              // Main gradient: Fades from the colored spectrum (at the bottom 25% of the section)
-              // to a transparent color at the top. The 'to top' direction is key.
               background: `
-          radial-gradient(
-            circle at bottom,
-            rgba(0, 200, 151, 0.3) 5%,      /* Teal/Green (Start of color spectrum at the very bottom) */
-            rgba(47, 128, 237, 0.7) 10%,    /* Blue/Purple (Middle of the spectrum) */
-            rgba(255, 90, 95, 0.7) 40%,     /* Orange/Red (End of the spectrum) */
-            rgba(0, 0, 0, 0.7) 70%,        /* Dark/Black fade area */
-            rgba(0, 0, 0, 1) 100%           /* Fully Black/Solid at the very top */
-          ), 
-          
-          /* Grid Overlay on top of the color gradient */
-          repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0.5px, transparent 1px, transparent 70px), 
-          repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0.5px, transparent 1px, transparent 60px)
-        `,
+                radial-gradient(
+                    circle at bottom,
+                    rgba(0, 200, 151, 0.7) 0%,    /* Teal/Green at the bottom */
+                    rgba(47, 128, 237, 0.7) 10%,  /* Blue transition */
+                    rgba(255, 215, 0, 0.7) 20%,   /* Yellow/Orange middle */
+                    rgba(255, 0, 8, 0.8) 45%,   /* Red at the bottom right */
+                    rgba(0, 0, 0, 0.7) 70%,       /* Dark fade */
+                    rgba(0, 0, 0, 1) 100%         /* Solid black at the top */
+                ),
+                /* Grid Overlay */
+                repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0.5px, transparent 1px, transparent 70px),
+                repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0.5px, transparent 1px, transparent 60px)
+              `,
             }}
           />
 
