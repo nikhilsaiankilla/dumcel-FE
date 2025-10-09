@@ -1,7 +1,6 @@
 "use client";
 
 import { Menu, X } from "lucide-react";
-import { bitcountSingle } from "@/fonts/font";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -65,7 +64,7 @@ const Navbar = () => {
                 ))}
             </div>
 
-            <div className={`w-full flex flex-col md:hidden absolute left-0 bg-backgrounds transition-all duration-300 ease-in-out overflow-hidden z-50 px-5 py-10 space-y-5 ${isOpen ? "top-16" : "-top-2/4"}`}>
+            <div className={`w-full flex flex-col md:hidden absolute left-0 bg-background transition-all duration-300 ease-in-out overflow-hidden z-50 px-5 py-10 space-y-5 ${isOpen ? "top-16" : "-top-2/4"}`}>
 
                 <ul className="flex items-center flex-col gap-3">
                     {navLinks.map((link) => (

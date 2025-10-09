@@ -1,6 +1,5 @@
 import Image from "next/image"
 import Navbar from "@/components/Navbar"
-import Btn from "@/components/Btn"
 import Link from "next/link"
 import { Globe, Merge, TrendingUp } from "lucide-react"
 import Footer from "@/components/Footer"
