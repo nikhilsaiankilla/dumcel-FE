@@ -3,12 +3,13 @@ import Navbar from "@/components/Navbar"
 import Link from "next/link"
 import { Globe, Merge, TrendingUp } from "lucide-react"
 import Footer from "@/components/Footer"
+import DeployButtonMicrointeraction from '@/components/DeployButtonMicrointeraction'
 
 export default function Home() {
   return (
     <>
       <Navbar />
-      <div className="bg-background border-b border-t border-gray-300/20 text-center py-3 text-white text-sm">
+      <div className="bg-background border-b border-t border-gray-300/20 text-center py-3 text-white text-sm break-words">
         Im Working on this project, stay tuned for updates!
       </div>
       <main className="w-full min-h-screen scroll-smooth relative bg-background">
@@ -76,25 +77,18 @@ export default function Home() {
         </section>
 
         <section className="w-full max-w-7xl mx-auto border-[0.5px] border-gray-300/20 overflow-hidden text-center grid grid-cols-1 md:grid-cols-2">
-          <div className="border-[0.5px] border-gray-300/20 h-full w-full p-10">
-            <h1 className="text-lg font-normal text-gray-500 text-left">
+          <div className="border-[0.5px] border-gray-300/20 h-full w-full md:p-10">
+            <h1 className="text-lg font-normal text-gray-500 text-left px-10 pt-10 md:p-0">
               {">_"} One Click Deployments
             </h1>
 
-            <p className="text-white text-base md:text-lg leading-relaxed text-left mt-5">
+            <p className="text-white text-base md:text-lg leading-relaxed text-left mt-5 px-10 md:p-0">
               Deploy your React applications instantly with a single click.
               We handle the builds, scaling, and delivery so you can focus on building.
             </p>
 
-            <div className="flex items-center justify-center mt-10">
-              <Image
-                src="/logo.png"
-                alt="Analytics"
-                className="w-3/5 object-contain aspect-square"
-                width={80}
-                unoptimized
-                height={80}
-              />
+            <div className="flex items-center justify-center md:mt-10">
+              <DeployButtonMicrointeraction />
             </div>
 
           </div>

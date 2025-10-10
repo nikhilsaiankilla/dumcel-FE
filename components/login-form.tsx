@@ -58,39 +58,39 @@ export function LoginForm({
   const router = useRouter();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-
     try {
       setLoading(true);
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-      if (!baseUrl) {
-        throw new Error("NEXT_PUBLIC_BASE_URL is not defined")
-      }
-      const res = await fetch(baseUrl + '/auth/login', {
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+      if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+
+      const res = await fetch(`${baseUrl}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: 'include',
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(data),
-      })
+      });
 
       const json = await res.json();
+      console.log(json);
 
-      if (!json.success && json.error) {
-        setLoading(false)
-        setResErrors(json.error || "Something went wrong")
+      if (!json.success || json.error) {
+        setResErrors(json.error || "Something went wrong");
+        setLoading(false);
+        return; // <-- stop execution here
       }
 
-      localStorage.setItem('token',json.token)
-      localStorage.setItem('userId',json.userId)
+      // Only runs if login succeeded
+      localStorage.setItem('token', json.token);
+      localStorage.setItem('userId', json.userId);
 
-      setLoading(false)
-      return router.push('/dashboard');
+      setLoading(false);
+      router.push('/dashboard');
     } catch (error: unknown) {
-      setLoading(false)
-      setResErrors(error instanceof Error ? error.message : "Something went wrong")
+      setLoading(false);
+      setResErrors(error instanceof Error ? error.message : "Something went wrong");
     }
-  }
+  };
+
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
