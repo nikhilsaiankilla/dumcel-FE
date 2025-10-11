@@ -1,8 +1,8 @@
-import { ProjectType } from '@/app/(root)/dashboard/page'
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
 import { EllipsisIcon, Github } from 'lucide-react'
 import Link from 'next/link'
+import { ProjectType } from '@/types'
 
 const ProjectCard = ({ project }: { project: ProjectType }) => {
 
