@@ -1,4 +1,5 @@
 import BuildLogsContainer from '@/components/build-logs-container';
+import DeployProjectForm from '@/components/DeployProjectForm';
 import { Button } from '@/components/ui/button';
 import { ProjectType } from '@/types';
 import { BrickWall, ExternalLink, Github, Pencil } from 'lucide-react';
@@ -172,6 +173,10 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                         </Link>
                     </div>
                 </div>
+            </div>
+
+            <div className='w-full mt-2 space-y-3.5 bg-gray-100/5 rounded-md border border-gray-300/20 p-3'>
+                <DeployProjectForm projectId={id} />
             </div>
 
             <div className='w-full mt-2 space-y-3.5 bg-gray-100/5 rounded-md border border-gray-300/20 p-3'>

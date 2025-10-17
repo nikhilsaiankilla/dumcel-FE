@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { ArrowRightCircle, EllipsisIcon, Github } from 'lucide-react'
+import { ArrowRightCircle, EllipsisIcon, Github, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectType } from '@/types'
 import { Button } from './ui/button'
@@ -70,8 +70,11 @@ const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (i
                             <DropdownMenuTrigger>
                                 <EllipsisIcon />
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent >
-                                <DropdownMenuLabel onClick={deleteProject} className='cursor-pointer'>Delete</DropdownMenuLabel>
+                            <DropdownMenuContent align='end'>
+                                <DropdownMenuLabel onClick={deleteProject} className='cursor-pointer flex items-center gap-2 hover:text-red-500 capitalize duration-150 ease-in-out'>
+                                    <Trash size={14}/>
+                                    Delete
+                                </DropdownMenuLabel>
                                 {/* <DropdownMenuSeparator />
                                 <DropdownMenuItem>Profile</DropdownMenuItem>
                                 <DropdownMenuItem>Billing</DropdownMenuItem>
@@ -110,11 +113,13 @@ const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (i
                 </h3>
             </div>
 
-            <Link href={`/dashboard/project/${project._id}`}>
-                <Button variant={'outline'} className='flex items-center gap-2.5 cursor-pointer disabled:bg-gray-300/20' disabled={loading}>
-                    Open Project <ArrowRightCircle />
-                </Button>
-            </Link>
+            <div className='flex items-center gap-2 flex-wrap'>
+                <Link href={`/dashboard/project/${project._id}`}>
+                    <Button variant={'outline'} className='flex items-center gap-2.5 cursor-pointer disabled:bg-gray-300/20' disabled={loading}>
+                        Open Project <ArrowRightCircle />
+                    </Button>
+                </Link>
+            </div>
         </div>
     )
 }

@@ -29,3 +29,5 @@ export interface DeploymentType {
     createdAt: Date,
     updatedAt?: Date
 }
+
+// VITE_API_URL=https://dummyjson.com
