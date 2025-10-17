@@ -1,15 +1,56 @@
-import React from 'react'
+"use client"
+
+import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { EllipsisIcon, Github } from 'lucide-react'
+import { ArrowRightCircle, EllipsisIcon, Github } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectType } from '@/types'
+import { Button } from './ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
-const ProjectCard = ({ project }: { project: ProjectType }) => {
+const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (id: string) => void }) => {
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const deleteProject = async () => {
+        try {
+            setLoading(true);
+            const token = localStorage.getItem('token');
+
+            setTimeout(async () => {
+                const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL + `/project/delete/${project._id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+
+                if (!res.ok) {
+                    setLoading(false);
+                    console.log(res);
+                    return;
+                }
+
+                const json = await res.json();
+                onDelete(project._id)
+                setLoading(false);
+            }, 1000)
+        } catch (error) {
+            setLoading(false);
+        }
+    }
+
 
     return (
         <div
             key={project._id}
-            className="p-4 space-y-3 border-[0.5px] border-gray-300/20 hover:border-gray-300/55 transition-all duration-200 ease-in-out bg-background/5 rounded-md shadow-sm"
+            className={`p-4 relative space-y-3 border-[0.5px] transition-all duration-200 ease-in-out bg-background/5 rounded-md shadow-sm
+                ${loading ? 'border-red-500/40' : 'border-gray-300/20 hover:border-gray-300/55'}`}
         >
             <div className='w-full flex items-center justify-between'>
                 <div className='flex items-center gap-3'>
@@ -25,7 +66,19 @@ const ProjectCard = ({ project }: { project: ProjectType }) => {
 
                 <div className='flex items-center gap-4'>
                     <span className='p-2 rounded-lg hover:bg-gray-300/20 transition-all duration-150 ease-in-out'>
-                        <EllipsisIcon />
+                        <DropdownMenu>
+                            <DropdownMenuTrigger>
+                                <EllipsisIcon />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent >
+                                <DropdownMenuLabel onClick={deleteProject} className='cursor-pointer'>Delete</DropdownMenuLabel>
+                                {/* <DropdownMenuSeparator />
+                                <DropdownMenuItem>Profile</DropdownMenuItem>
+                                <DropdownMenuItem>Billing</DropdownMenuItem>
+                                <DropdownMenuItem>Team</DropdownMenuItem>
+                                <DropdownMenuItem>Subscription</DropdownMenuItem> */}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </span>
                 </div>
             </div>
@@ -56,6 +109,12 @@ const ProjectCard = ({ project }: { project: ProjectType }) => {
                     }
                 </h3>
             </div>
+
+            <Link href={`/dashboard/project/${project._id}`}>
+                <Button variant={'outline'} className='flex items-center gap-2.5 cursor-pointer disabled:bg-gray-300/20' disabled={loading}>
+                    Open Project <ArrowRightCircle />
+                </Button>
+            </Link>
         </div>
     )
 }

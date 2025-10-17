@@ -6,6 +6,10 @@ export interface ProjectType {
     subDomain: string,
     createdAt: string,
     updatedAt?: string,
+    deployment: {
+        latestDeploymentId?: string,
+        state?: DeploymentState,
+    }
 }
 
 export enum DeploymentState {

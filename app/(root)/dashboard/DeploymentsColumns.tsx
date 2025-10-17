@@ -41,10 +41,12 @@ export const DeploymentColumns: ColumnDef<DeploymentType>[] = [
                     break;
             }
 
-            return <div className='flex items-center gap-2'>
-                <span className={`p-1.5 border-[0.3] border-gray-400 rounded-full ${bgClass} shadow-xs`}/>
-                <p className={`capitalize text-gray-400 font-semibold text-sm`}>{state}</p>
-            </div>
+            return (
+                <div className='flex items-center gap-2'>
+                    <span className={`p-1.5 border-[0.3] border-gray-400 rounded-full ${bgClass} shadow-xs`} />
+                    <p className={`capitalize text-gray-400 font-semibold text-sm`}>{state}</p>
+                </div>
+            )
         },
     },
     {

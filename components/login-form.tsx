@@ -54,6 +54,7 @@ export function LoginForm({
 
   const [resErrors, setResErrors] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [githubLoading, setgithubLoading] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -71,7 +72,6 @@ export function LoginForm({
       });
 
       const json = await res.json();
-      console.log(json);
 
       if (!json.success || json.error) {
         setResErrors(json.error || "Something went wrong");
@@ -91,6 +91,19 @@ export function LoginForm({
     }
   };
 
+  const loginWithGithub = () => {
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL}/github/callback`;
+    
+    const scope = "read:user,user:email";
+    const state = "login"; // used only to identify flow
+
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&scope=${scope}&state=${state}`;
+
+    window.location.href = authUrl;
+  };
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -137,8 +150,10 @@ export function LoginForm({
                 <Button type="submit" className="cursor-pointer">
                   {loading ? <>Logging In <Loader className="animate-spin" /></> : "Login"}
                 </Button>
-                <Button variant="outline" type="button">
-                  Login with Github
+                <Button variant="outline" type="button" onClick={loginWithGithub} className="cursor-pointer">
+                  {
+                    githubLoading ? "Logging In" : "Login with Github"
+                  }
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <a href="/signup">Sign up</a>

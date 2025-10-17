@@ -143,4 +143,13 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 1000px theme('colors.zinc.900') inset !important;
+    -webkit-text-fill-color: theme('colors.white') !important;
+    caret-color: theme('colors.white');
+  }
 }

@@ -13,6 +13,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination"
 import { Skeleton } from "./ui/skeleton";
+import AddProjectBtn from "./add-project-btn";
 
 const ProjectsTab = () => {
     const [projects, setProjects] = useState<ProjectType[]>([])
@@ -79,14 +80,14 @@ const ProjectsTab = () => {
     if (loading) {
         return (
             <div className="w-full min-h-[75vh] grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
-                <Skeleton className="w-full h-44 rounded-md shadow-sm"/>
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
+                <Skeleton className="w-full h-44 rounded-md shadow-sm" />
             </div>
         );
     }
@@ -99,17 +100,26 @@ const ProjectsTab = () => {
         );
     }
 
+    const deleteProjectHander = (id: string) => {
+        setProjects((prev) => prev.filter(({ _id }) => _id !== id))
+    }
+
     return (
         <div className="w-full min-h-[75vh] flex items-center justify-between flex-col">
             <div className="w-full">
                 {projects.length === 0 ? (
-                    <div className="w-full flex items-center justify-center">
-                        <h1>No Projects</h1>
+                    <div className="w-full">
+                        <span className="w-full max-w-xs">
+                            <AddProjectBtn />
+                        </span>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <>
+                            <AddProjectBtn />
+                        </>
                         {projects.map((project: ProjectType) => (
-                            <ProjectCard project={project} key={project._id} />
+                            <ProjectCard project={project} key={project._id} onDelete={(id) => deleteProjectHander(id)} />
                         ))}
                     </div>
                 )}
