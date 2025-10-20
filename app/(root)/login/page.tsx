@@ -1,0 +1,17 @@
+import Footer from "@/components/Footer"
+import { LoginForm } from "@/components/login-form"
+import Navbar from "@/components/Navbar"
+
+export default function Page() {
+    return (
+        <>
+            <Navbar />
+            <div className="flex min-h-[80vh] w-full items-center max-w-7xl mx-auto justify-center p-6 md:p-10 border-[0.5px] border-gray-300/20">
+                <div className="w-full max-w-sm">
+                    <LoginForm />
+                </div>
+            </div>
+            <Footer />
+        </>
+    )
+}
