@@ -1,8 +1,9 @@
 "use client";
 
 import ProfileDropdown from "@/components/profile-dropdown";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Github } from "lucide-react";
+import { DollarSign, Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -12,6 +13,7 @@ interface User {
     name: string;
     email: string;
     avatar?: string;
+    credits: number;
     isGitConnected: boolean;
     // add any other fields you need
 }
@@ -93,7 +95,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </Link>
 
                 <div className="flex gap-3 items-center">
-                    {user?.isGitConnected ? (
+                    {!user?.isGitConnected ? (
                         <Button
                             variant={"outline"}
                             className="cursor-pointer px-3 py-1"
@@ -107,6 +109,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <Github size={12} />
                             Connected
                         </Button>
+                    )}
+                    {user && (
+                        <Badge variant={'outline'} className="flex items-center gap-1 px-3 py-2 rounded">
+                            <DollarSign size={14} />
+                            <span>{user.credits}</span>
+                        </Badge>
                     )}
                     <ProfileDropdown user={user} loading={loading} error={error} />
                 </div>
