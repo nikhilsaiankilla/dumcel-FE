@@ -57,11 +57,15 @@ export function BuyCreditsForm({
         try {
             setLoading(true)
             setResError("")
+            const token = localStorage.getItem('token')
 
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
             const res = await fetch(`http://localhost:8003/payment/create-order`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + token
+                },
                 credentials: "include",
                 body: JSON.stringify({
                     amount: total * 100,
@@ -83,15 +87,24 @@ export function BuyCreditsForm({
                 description: `${data.credits} credits purchase`,
                 order_id: orderId,
                 handler: async (response: any) => {
-                    console.log('response ', response);
+
+                    console.log('credits ', data.credits);
 
                     const verifyRes = await fetch(`http://localhost:8003/payment/verify-order`, {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(response),
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": "Bearer " + token
+                        },
+                        body: JSON.stringify({
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature,
+                            credits: data.credits,
+                            amount: total
+                        }),
                     })
                     const verifyJson = await verifyRes.json()
-                    console.log('Verify ', verifyJson);
 
                     if (verifyJson.success) {
                         alert("Payment verified successfully!")

@@ -1,35 +1,36 @@
 "use client";
 
-import { DeploymentType } from "@/types";
 import { useEffect, useState } from "react";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { DataTable } from "./data-table";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { DeploymentColumns } from "./columns/deployments-columns";
+import { PaymentsColumns } from "./columns/payments-columns";
 
-const DeploymentTab = ({ projectId }: { projectId?: string }) => {
-    const [deployments, setDeployments] = useState<DeploymentType[]>([]);
+export interface ICreditPurchase {
+    user: string;
+    amount: number; // total INR amount paid
+    credits: number; // credits granted for that payment
+    orderId: string; // Razorpay order ID
+    paymentId?: string; // Razorpay payment ID (after success)
+    status: "created" | "paid" | "failed";
+    currency: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const PaymentsTab = () => {
+    const [payments, setPayments] = useState<ICreditPurchase[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [page, setPage] = useState(1);
     const [limit] = useState(10);
-    const [stateFilter, setStateFilter] = useState<string>("all");
     const [pagination, setPagination] = useState<{
         hasNextPage: boolean;
         hasPrevPage: boolean;
@@ -42,18 +43,12 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
         totalPages: 1,
     });
 
-    const fetchDeployments = async (pageNum = 1, state = "all") => {
+    const fetchPayments = async (pageNum = 1) => {
         try {
             const token = localStorage.getItem("token");
             setLoading(true);
 
-            const stateQuery =
-                state !== "all" ? `&state=${encodeURIComponent(state)}` : "";
-
-            const url = process.env.NEXT_PUBLIC_BASE_URL +
-                (projectId
-                    ? `/project/get-all-deployments/${projectId}?page=${pageNum}&limit=${limit}${stateQuery}`
-                    : `/project/get-all-deployments?page=${pageNum}&limit=${limit}${stateQuery}`);
+            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/credits/get-payments?page=${pageNum}&limit=${limit}`;
 
             const res = await fetch(url, {
                 method: "GET",
@@ -65,39 +60,36 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
 
             if (!res.ok) {
                 setLoading(false);
-                return setError("Something went wrong while fetching deployments.");
+                return setError("Something went wrong while fetching payments.");
             }
 
-            const deploymentsJson = await res.json();
+            const json = await res.json();
 
-            const mappedDeployments: DeploymentType[] =
-                (deploymentsJson?.data?.deployments || []).map((d: any) => ({
-                    _id: d._id,
-                    projectId: d.projectId?._id || "",
-                    projectName: d.projectId?.projectName || "",
-                    subDomain: d.projectId?.subDomain || "",
-                    state: d.state,
-                    createdAt: new Date(d.createdAt),
-                    updatedAt: d.updatedAt ? new Date(d.updatedAt) : undefined,
-                }));
+            console.log(json);
+            
+            const mappedPayments: ICreditPurchase[] = (json?.data?.payments || []).map((p: any) => ({
+                ...p,
+                createdAt: new Date(p.createdAt),
+                updatedAt: p.updatedAt ? new Date(p.updatedAt) : undefined,
+            }));
 
-            setDeployments(mappedDeployments);
+            setPayments(mappedPayments);
             setPagination({
-                hasNextPage: deploymentsJson?.data?.pagination?.hasNextPage || false,
-                hasPrevPage: deploymentsJson?.data?.pagination?.hasPrevPage || false,
-                page: deploymentsJson?.data?.pagination?.page || 1,
-                totalPages: deploymentsJson?.data?.pagination?.totalPages || 1,
+                hasNextPage: json?.data?.pagination?.hasNextPage || false,
+                hasPrevPage: json?.data?.pagination?.hasPrevPage || false,
+                page: json?.data?.pagination?.page || 1,
+                totalPages: json?.data?.pagination?.totalPages || 1,
             });
             setLoading(false);
-        } catch (error: unknown) {
+        } catch (err: unknown) {
             setLoading(false);
-            setError(error instanceof Error ? error.message : "Something went wrong");
+            setError(err instanceof Error ? err.message : "Something went wrong");
         }
     };
 
     useEffect(() => {
-        fetchDeployments(page, stateFilter);
-    }, [page, stateFilter]);
+        fetchPayments(page);
+    }, [page]);
 
     const handlePrev = () => {
         if (pagination.hasPrevPage) setPage((prev) => prev - 1);
@@ -127,47 +119,16 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
 
     return (
         <div className="w-full">
-            <div className="w-full space-y-4 flex flex-col md:flex-row md:items-center md:justify-between">
-                <h1 className="text-lg md:text-3xl font-bold text-foreground">
-                    {!projectId && "Recent Deployments By You"}
-                    {projectId && "All Deployments of this project"}
-                </h1>
-
-                {/* State Filter Dropdown */}
-                <div className="flex items-center gap-2">
-                    <Label htmlFor="stateFilter" className="text-sm text-gray-400">
-                        Filter by state:
-                    </Label>
-                    <Select
-                        value={stateFilter}
-                        onValueChange={(value) => {
-                            setStateFilter(value);
-                            setPage(1);
-                        }}
-                    >
-                        <SelectTrigger className="w-[180px] bg-background border-gray-700">
-                            <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All</SelectItem>
-                            <SelectItem value="ready">Ready</SelectItem>
-                            <SelectItem value="in progress">In Progress</SelectItem>
-                            <SelectItem value="failed">Failed</SelectItem>
-                            <SelectItem value="queued">Queued</SelectItem>
-                            <SelectItem value="not started">Not Started</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
+            <h1 className="text-lg md:text-3xl font-bold text-foreground mb-4">Your Payments</h1>
 
             <div className="w-full flex min-h-[70vh] items-center justify-between flex-col gap-5">
                 <div className="w-full mt-5">
-                    {deployments.length === 0 ? (
+                    {payments.length === 0 ? (
                         <div className="w-full flex items-center justify-center">
-                            <h1>No Deployments Found</h1>
+                            <h1>No Payments Found</h1>
                         </div>
                     ) : (
-                        <DataTable columns={DeploymentColumns} data={deployments} />
+                        <DataTable columns={PaymentsColumns} data={payments} />
                     )}
                 </div>
 
@@ -208,9 +169,6 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
                             })}
 
                             <PaginationItem>
-                                {pagination.totalPages > 3 && <PaginationEllipsis />}
-                            </PaginationItem>
-                            <PaginationItem>
                                 <PaginationNext
                                     href="#"
                                     onClick={(e) => {
@@ -232,4 +190,4 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
     );
 };
 
-export default DeploymentTab;
+export default PaymentsTab;

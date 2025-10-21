@@ -16,6 +16,7 @@ interface ProfileDropdownProps {
     user?: {
         name?: string;
         photo?: string;
+        email?: string
     } | null;
     loading?: boolean;
     error?: string | null;
@@ -66,12 +67,12 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user, loading }) => {
 
             <DropdownMenuContent align="end" className="mt-2 w-56">
                 <DropdownMenuLabel>{user?.name ?? "User"}</DropdownMenuLabel>
+                <p className="text-xs px-2 text-gray-300 mb-2">{user?.email ?? "email"}</p>
                 <DropdownMenuSeparator />
 
-                <DropdownMenuItem onClick={() => router.push("/profile")}>Profile</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/billing")}>Billing</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/team")}>Team</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/subscription")}>Subscription</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/dashboard/credits")}>Buy Credits</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/dashboard/credit-usage")}>Credit Usage</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/dashboard/payments")}>Payments</DropdownMenuItem>
 
                 <DropdownMenuSeparator />
 

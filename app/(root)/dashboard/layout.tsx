@@ -3,7 +3,7 @@
 import ProfileDropdown from "@/components/profile-dropdown";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { DollarSign, Github } from "lucide-react";
+import { Coins, Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -111,8 +111,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </Button>
                     )}
                     {user && (
-                        <Badge variant={'outline'} className="flex items-center gap-1 px-3 py-2 rounded">
-                            <DollarSign size={14} />
+                        <Badge variant={'outline'} className="flex items-center gap-1 px-3 py-2 rounded space-x-2.5">
+                            <Coins className="text-amber-400" size={15} />
                             <span>{user.credits}</span>
                         </Badge>
                     )}
