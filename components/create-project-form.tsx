@@ -78,9 +78,8 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
                 });
                 const json = await res.json();
 
-                if (json.length > 0) {
-
-                    const repos = json.map((repo: any) => {
+                if (json.success) {
+                    const repos = json?.data?.map((repo: any) => {
                         return {
                             id: repo.id,
                             name: repo.name,
@@ -163,23 +162,27 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
             if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL not set");
 
-            const token = localStorage.getItem('token');
-
-            if (!token) throw new Error('Token not found please login again')
-
-            console.log(data);
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Token not found, please login again");
 
             const res = await fetch(`${baseUrl}/project/add-project`, {
                 method: "POST",
                 headers: {
-                    'Authorization': "Bearer " + token,
-                    "Content-Type": "application/json"
+                    Authorization: "Bearer " + token,
+                    "Content-Type": "application/json",
                 },
                 credentials: "include",
                 body: JSON.stringify(data),
             });
 
             const json = await res.json();
+
+            // Handle duplicate key error specifically
+            if (res.status === 409 || (json.error && json.error.includes("duplicate key"))) {
+                throw new Error(
+                    `A project with the subdomain "${data.subDomain}" already exists. Please choose a different subdomain.`
+                );
+            }
 
             if (json.status !== "success") {
                 throw new Error(json.error || "Failed to create project");
@@ -238,26 +241,27 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
                                             </SelectValue>
                                         </SelectTrigger>
                                         <SelectContent className="w-full">
-                                            {repos.map((repo) => (
-                                                <SelectItem
-                                                    key={repo.id}
-                                                    value={repo.url}
-                                                    className="w-full px-3 py-2 rounded-md cursor-pointer hover:bg-gray-700/20 focus:bg-gray-700/30 overflow-hidden text-ellipsis"
-                                                >
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-cemter gap-2 font-medium text-white">
-                                                            {repo.name}
-                                                            {repo.private && <LockKeyhole size={14} />}
+                                            {repos.length === 0 ? (
+                                                <p className="px-3 py-2 text-gray-400">No repositories found</p>
+                                            ) : (
+                                                repos.map((repo) => (
+                                                    <SelectItem
+                                                        key={repo.id}
+                                                        value={repo.url}
+                                                        className="w-full px-3 py-2 rounded-md cursor-pointer hover:bg-gray-700/20 focus:bg-gray-700/30 overflow-hidden text-ellipsis"
+                                                    >
+                                                        <div className="space-y-1">
+                                                            <div className="flex items-center gap-2 font-medium text-white">
+                                                                {repo.name} {repo.private && <LockKeyhole size={14} />}
+                                                            </div>
+                                                            <div className="text-sm text-gray-400">{repo.owner}</div>
+                                                            <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
+                                                                <GitBranch size={14} /> {repo.branch}
+                                                            </div>
                                                         </div>
-                                                        <div className="text-sm text-gray-400">
-                                                            {repo.owner}
-                                                        </div>
-                                                        <div className="flex items-center gap-2 mt-1 text-sm text-gray-400">
-                                                            <GitBranch size={14} /> {repo.branch}
-                                                        </div>
-                                                    </div>
-                                                </SelectItem>
-                                            ))}
+                                                    </SelectItem>
+                                                ))
+                                            )}
                                         </SelectContent>
 
                                     </Select>

@@ -59,8 +59,10 @@ export function LoginForm({
   const router = useRouter();
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    setLoading(true);
+    setResErrors(""); // clear previous errors
+
     try {
-      setLoading(true);
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
       if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
 
@@ -73,28 +75,26 @@ export function LoginForm({
 
       const json = await res.json();
 
-      if (!json.success || json.error) {
-        setResErrors(json.error || "Something went wrong");
-        setLoading(false);
-        return; // <-- stop execution here
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || "Something went wrong during login");
       }
 
-      // Only runs if login succeeded
-      localStorage.setItem('token', json.token);
-      localStorage.setItem('userId', json.userId);
+      // Save token and userId
+      localStorage.setItem("token", json.token);
+      localStorage.setItem("userId", json.userId);
 
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      setResErrors(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
       setLoading(false);
-      router.push('/dashboard');
-    } catch (error: unknown) {
-      setLoading(false);
-      setResErrors(error instanceof Error ? error.message : "Something went wrong");
     }
   };
 
   const loginWithGithub = () => {
     const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
     const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL}/github/callback`;
-    
+
     const scope = "read:user,user:email";
     const state = "login"; // used only to identify flow
 

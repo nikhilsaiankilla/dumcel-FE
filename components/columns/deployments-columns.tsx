@@ -3,6 +3,7 @@ import { DeploymentType } from '@/types'
 import { ColumnDef } from '@tanstack/react-table'
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { Badge } from '../ui/badge';
 
 export const DeploymentColumns: ColumnDef<DeploymentType>[] = [
     {
@@ -21,32 +22,32 @@ export const DeploymentColumns: ColumnDef<DeploymentType>[] = [
         header: "Status",
         cell: ({ row }) => {
             const state: string = row.getValue("state");
-            let bgClass = 'bg-gray-600'
+
+            let variant = 'bg-gray-300'
 
             switch (state) {
                 case "not started":
-                    bgClass = 'bg-gray-800'
+                    variant = "bg-gray-500";
                     break;
                 case "queued":
-                    bgClass = "bg-blue-500"
+                    variant = "bg-blue-500";
                     break;
                 case "in progress":
-                    bgClass = "bg-yellow-500"
+                    variant = "bg-yellow-500";
                     break;
                 case "ready":
-                    bgClass = "bg-green-500"
+                    variant = "bg-green-500";
                     break;
                 case "failed":
-                    bgClass = "bg-red-500"
+                    variant = "bg-red-500";
                     break;
             }
 
             return (
-                <div className='flex items-center gap-2'>
-                    <span className={`p-1.5 border-[0.3] border-gray-400 rounded-full ${bgClass} shadow-xs`} />
-                    <p className={`capitalize text-gray-400 font-semibold text-sm`}>{state}</p>
-                </div>
-            )
+                <Badge className={`capitalize ${variant} text-white`}>
+                    {state}
+                </Badge>
+            );
         },
     },
     {

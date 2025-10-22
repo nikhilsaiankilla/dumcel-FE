@@ -35,19 +35,15 @@ export const PaymentsColumns: ColumnDef<ICreditPurchase>[] = [
         cell: ({ row }) => {
             const status: string = row.getValue("status");
 
-            // Define badge variants for each status
-            let badgeClass = "bg-gray-600 text-white"; // default
-            switch (status) {
-                case "created":
-                    badgeClass = "bg-yellow-400/40 border border-yellow-500 text-white";
-                    break;
-                case "paid":
-                    badgeClass = "bg-green-300/40 border border-green-500 text-white";
-                    break;
-                case "failed":
-                    badgeClass = "bg-red-600 border border-red-700 text-white";
-                    break;
-            }
+            // Map status to badge styles
+            const badgeMap: Record<string, string> = {
+                created: "bg-yellow-400/40 border border-yellow-500 text-white",
+                paid: "bg-green-300/40 border border-green-500 text-white",
+                failed: "bg-red-600 border border-red-700 text-white",
+                default: "bg-gray-600 text-white",
+            };
+
+            const badgeClass = badgeMap[status] || badgeMap.default;
 
             return <Badge className={`capitalize ${badgeClass}`}>{status}</Badge>;
         },

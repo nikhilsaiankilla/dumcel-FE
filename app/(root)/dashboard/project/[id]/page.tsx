@@ -37,13 +37,13 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
         if (!res.ok) throw new Error(`Failed to fetch project (${res.status})`);
 
         const json = await res.json();
-        if (json.status !== 'success') throw new Error(json.error || 'Unexpected error');
+        
+        if (!json.success) throw new Error(json.error || 'Unexpected error');
 
-        project = json.project;
+        project = json?.data;
     } catch (err: unknown) {
         error = err instanceof Error ? err.message : 'Something went wrong.';
     }
-
 
     if (error || !project) {
         return (
@@ -169,14 +169,6 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                                 className='cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold border-gray-500/40 hover:bg-gray-100/10 transition-colors'
                             >
                                 All Deployments
-                            </Button>
-                        </Link>
-                        <Link href={project?.gitUrl || ''} target='_blank'>
-                            <Button
-                                className='cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold border-gray-500/40 hover:bg-gray-100/80 transition-colors'
-                            >
-                                Change Subdomain
-                                <Pencil size={12} />
                             </Button>
                         </Link>
                     </div>

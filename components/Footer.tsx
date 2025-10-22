@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 const Footer = () => {
     return (
-        <footer className="w-full relative max-w-7xl mx-auto px-4 md:p-10 bg-black/20 backdrop-blur-sm mb-5">
+        <footer className="w-full relative max-w-7xl mx-auto px-4 md:p-10 mb-5">
             <div className="w-full flex flex-wrap justify-between gap-10 items-start">
 
                 {/* Products / Features */}

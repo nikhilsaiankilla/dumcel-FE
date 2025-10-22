@@ -1,8 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ExternalLink } from "lucide-react";
-import Link from "next/link";
 import { CreditUsageType } from "../credit-usage-tab";
 import { Badge } from "../ui/badge";
 

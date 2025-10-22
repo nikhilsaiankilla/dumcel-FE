@@ -49,32 +49,35 @@ export function VerifyOtpForm({ className, email, ...props }: VerifyOtpFormProps
     const router = useRouter()
 
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
-        try {
-            setIsSubmitting(true)
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined")
+        setResErrors(""); // clear previous errors
+        setIsSubmitting(true);
 
-            const res = await fetch(baseUrl + "/auth/verify-otp", {
+        try {
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+
+            const res = await fetch(`${baseUrl}/auth/verify-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
                 body: JSON.stringify({ email, otp: data.otp }),
-            })
+            });
 
-            const json = await res.json()
+            const json = await res.json();
 
-            if (!json.success) {
-                setResErrors(json.error || "Invalid OTP. Please try again.")
-                return
+            if (!res.ok || !json.success) {
+                throw new Error(json.error || "Invalid OTP. Please try again.");
             }
 
-            router.push("/reset-password") // Redirect after successful OTP verification
-        } catch (error: unknown) {
-            setResErrors(error instanceof Error ? error.message : "Something went wrong")
+            // OTP verified successfully
+            router.push("/reset-password");
+
+        } catch (err: unknown) {
+            setResErrors(err instanceof Error ? err.message : "Something went wrong");
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>

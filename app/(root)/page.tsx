@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar"
 import Link from "next/link"
-import { CoinsIcon, DollarSign, Globe, Merge, TrendingUp } from "lucide-react"
+import { CoinsIcon, Globe, Merge, TrendingUp } from "lucide-react"
 import Footer from "@/components/Footer"
 import DeployButtonMicrointeraction from '@/components/DeployButtonMicrointeraction'
 import { LineChartLandingPage } from "@/components/LineChartLandingPage"
@@ -132,7 +132,7 @@ export default function Home() {
 
         </section>
 
-        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-t-0 border-gray-300/20 overflow-hidden py-20 px-10">
+        <section className="w-full max-w-7xl mx-auto border-[0.5px] border-t-0 border-gray-300/20 overflow-hidden py-10 px-10">
           <h1 className="text-lg font-normal text-gray-500 text-left flex items-center gap-5">
             <TrendingUp /> Analytics
           </h1>

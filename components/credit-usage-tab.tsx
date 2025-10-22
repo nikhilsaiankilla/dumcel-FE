@@ -38,35 +38,38 @@ const CreditUsageTab = () => {
 
     const fetchTransactions = async (pageNum = 1) => {
         try {
-            const token = localStorage.getItem("token");
             setLoading(true);
+            setError(null);
 
-            const url = `${process.env.NEXT_PUBLIC_BASE_URL}/credits?page=${pageNum}&limit=${limit}`;
-            const res = await fetch(url, {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-            });
+            const token = localStorage.getItem("token");
+            if (!token) throw new Error("Authentication token not found");
 
-            if (!res.ok) {
-                setLoading(false);
-                return setError("Something went wrong while fetching credit usage.");
-            }
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BASE_URL}/credits?page=${pageNum}&limit=${limit}`,
+                {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            if (!res.ok) throw new Error(`Failed to fetch credit usage (${res.status})`);
 
             const json = await res.json();
 
-            const mappedTransactions: CreditUsageType[] =
-                (json?.data?.transactions || []).map((t: any) => ({
-                    _id: t._id,
-                    type: t.type,
-                    amount: t.amount,
-                    reason: t.reason,
-                    relatedEntity: t.relatedEntity,
-                    balanceAfter: t.balanceAfter,
-                    createdAt: new Date(t.createdAt),
-                }));
+            if (!json.success) throw new Error(json.error || "Failed to fetch credit usage");
+
+            const mappedTransactions: CreditUsageType[] = (json?.data?.transactions || []).map((t: any) => ({
+                _id: t._id,
+                type: t.type,
+                amount: Number(t.amount) || 0,
+                reason: t.reason || "",
+                relatedEntity: t.relatedEntity,
+                balanceAfter: Number(t.balanceAfter) || 0,
+                createdAt: new Date(t.createdAt),
+            }));
 
             setTransactions(mappedTransactions);
             setPagination({
@@ -75,11 +78,10 @@ const CreditUsageTab = () => {
                 page: json?.data?.pagination?.page || 1,
                 totalPages: json?.data?.pagination?.totalPages || 1,
             });
-
-            setLoading(false);
         } catch (err: unknown) {
-            setLoading(false);
             setError(err instanceof Error ? err.message : "Something went wrong");
+        } finally {
+            setLoading(false);
         }
     };
 

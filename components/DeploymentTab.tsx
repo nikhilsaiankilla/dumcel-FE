@@ -43,55 +43,58 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
     });
 
     const fetchDeployments = async (pageNum = 1, state = "all") => {
+        setLoading(true);
+        setError(null);
+
         try {
             const token = localStorage.getItem("token");
-            setLoading(true);
+            if (!token) throw new Error("Authentication token not found");
 
-            const stateQuery =
-                state !== "all" ? `&state=${encodeURIComponent(state)}` : "";
+            const stateQuery = state !== "all" ? `&state=${encodeURIComponent(state)}` : "";
 
-            const url = process.env.NEXT_PUBLIC_BASE_URL +
-                (projectId
-                    ? `/project/get-all-deployments/${projectId}?page=${pageNum}&limit=${limit}${stateQuery}`
-                    : `/project/get-all-deployments?page=${pageNum}&limit=${limit}${stateQuery}`);
+            const url = projectId
+                ? `${process.env.NEXT_PUBLIC_BASE_URL}/project/get-all-deployments/${projectId}?page=${pageNum}&limit=${limit}${stateQuery}`
+                : `${process.env.NEXT_PUBLIC_BASE_URL}/project/get-all-deployments?page=${pageNum}&limit=${limit}${stateQuery}`;
 
             const res = await fetch(url, {
                 method: "GET",
                 headers: {
-                    Authorization: "Bearer " + token,
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
 
             if (!res.ok) {
-                setLoading(false);
-                return setError("Something went wrong while fetching deployments.");
+                const text = await res.text();
+                throw new Error(`Failed to fetch deployments (${res.status}): ${text}`);
             }
 
             const deploymentsJson = await res.json();
+            if (!deploymentsJson.success) throw new Error(deploymentsJson.error || "Failed to fetch deployments");
 
-            const mappedDeployments: DeploymentType[] =
-                (deploymentsJson?.data?.deployments || []).map((d: any) => ({
-                    _id: d._id,
-                    projectId: d.projectId?._id || "",
-                    projectName: d.projectId?.projectName || "",
-                    subDomain: d.projectId?.subDomain || "",
-                    state: d.state,
-                    createdAt: new Date(d.createdAt),
-                    updatedAt: d.updatedAt ? new Date(d.updatedAt) : undefined,
-                }));
+            const mappedDeployments: DeploymentType[] = (deploymentsJson?.data?.deployments || []).map((d: any) => ({
+                _id: d._id,
+                projectId: d.projectId?._id || "",
+                projectName: d.projectId?.projectName || "",
+                subDomain: d.projectId?.subDomain || "",
+                state: d.state,
+                createdAt: new Date(d.createdAt),
+                updatedAt: d.updatedAt ? new Date(d.updatedAt) : undefined,
+            }));
 
             setDeployments(mappedDeployments);
             setPagination({
-                hasNextPage: deploymentsJson?.data?.pagination?.hasNextPage || false,
-                hasPrevPage: deploymentsJson?.data?.pagination?.hasPrevPage || false,
-                page: deploymentsJson?.data?.pagination?.page || 1,
-                totalPages: deploymentsJson?.data?.pagination?.totalPages || 1,
+                hasNextPage: deploymentsJson?.data?.pagination?.hasNextPage ?? false,
+                hasPrevPage: deploymentsJson?.data?.pagination?.hasPrevPage ?? false,
+                page: deploymentsJson?.data?.pagination?.page ?? 1,
+                totalPages: deploymentsJson?.data?.pagination?.totalPages ?? 1,
             });
-            setLoading(false);
+
         } catch (error: unknown) {
+            console.error("Error fetching deployments:", error);
+            setError(error instanceof Error ? error.message : "Something went wrong while fetching deployments");
+        } finally {
             setLoading(false);
-            setError(error instanceof Error ? error.message : "Something went wrong");
         }
     };
 

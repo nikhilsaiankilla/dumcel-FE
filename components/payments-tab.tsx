@@ -44,29 +44,31 @@ const PaymentsTab = () => {
     });
 
     const fetchPayments = async (pageNum = 1) => {
+        setLoading(true);
+        setError(null);
+
         try {
             const token = localStorage.getItem("token");
-            setLoading(true);
+            if (!token) throw new Error("Authentication token not found");
 
             const url = `${process.env.NEXT_PUBLIC_BASE_URL}/credits/get-payments?page=${pageNum}&limit=${limit}`;
 
             const res = await fetch(url, {
                 method: "GET",
                 headers: {
-                    Authorization: "Bearer " + token,
+                    Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
                 },
             });
 
             if (!res.ok) {
-                setLoading(false);
-                return setError("Something went wrong while fetching payments.");
+                const text = await res.text();
+                throw new Error(`Failed to fetch payments (${res.status}): ${text}`);
             }
 
             const json = await res.json();
+            if (!json.success) throw new Error(json.error || "Failed to fetch payments");
 
-            console.log(json);
-            
             const mappedPayments: ICreditPurchase[] = (json?.data?.payments || []).map((p: any) => ({
                 ...p,
                 createdAt: new Date(p.createdAt),
@@ -75,15 +77,17 @@ const PaymentsTab = () => {
 
             setPayments(mappedPayments);
             setPagination({
-                hasNextPage: json?.data?.pagination?.hasNextPage || false,
-                hasPrevPage: json?.data?.pagination?.hasPrevPage || false,
-                page: json?.data?.pagination?.page || 1,
-                totalPages: json?.data?.pagination?.totalPages || 1,
+                hasNextPage: json?.data?.pagination?.hasNextPage ?? false,
+                hasPrevPage: json?.data?.pagination?.hasPrevPage ?? false,
+                page: json?.data?.pagination?.page ?? 1,
+                totalPages: json?.data?.pagination?.totalPages ?? 1,
             });
-            setLoading(false);
+
         } catch (err: unknown) {
+            console.error("Error fetching payments:", err);
+            setError(err instanceof Error ? err.message : "Something went wrong while fetching payments.");
+        } finally {
             setLoading(false);
-            setError(err instanceof Error ? err.message : "Something went wrong");
         }
     };
 

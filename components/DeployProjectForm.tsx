@@ -73,7 +73,7 @@ const DeployProjectForm: React.FC<DeployProjectFormProps> = ({ projectId }) => {
 
             const json = await res.json();
 
-            if (json.status) {
+            if (json.success) {
                 toast.success("Deployment started successfully");
                 router.refresh();
             } else {

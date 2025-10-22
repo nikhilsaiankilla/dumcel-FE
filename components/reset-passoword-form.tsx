@@ -60,11 +60,12 @@ export function ResetPasswordForm({
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
         setResErrors("");
         setSuccess("");
+
         try {
             const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
             if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
 
-            const res = await fetch(baseUrl + "/auth/reset-password", {
+            const res = await fetch(`${baseUrl}/auth/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -73,19 +74,18 @@ export function ResetPasswordForm({
 
             const json = await res.json();
 
-            if (!json.success) {
-                setResErrors(json.error || "Something went wrong");
-                return;
+            if (!res.ok || !json.success) {
+                throw new Error(json.error || "Something went wrong while resetting password");
             }
 
             setSuccess("Password reset successful! Redirecting to login...");
             setTimeout(() => router.push("/login"), 2000);
-        } catch (error: unknown) {
-            setResErrors(
-                error instanceof Error ? error.message : "Something went wrong"
-            );
+
+        } catch (err: unknown) {
+            setResErrors(err instanceof Error ? err.message : "Something went wrong");
         }
     };
+
 
     return (
         <div className={cn("flex flex-col gap-6", className)} {...props}>

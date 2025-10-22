@@ -27,28 +27,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [githubError, setGithubError] = useState<string | null>(null);
 
     const fetchData = async () => {
+        setLoading(true);
+        setError(null);
+
         try {
             const token = localStorage.getItem("token");
+            if (!token) throw new Error("Authentication token not found");
+
             const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-user`, {
                 headers: {
-                    Authorization: "Bearer " + token,
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
                 },
                 credentials: "include",
             });
 
             if (!res.ok) {
-                throw new Error("Failed to fetch user data");
+                const text = await res.text();
+                throw new Error(`Failed to fetch user data (${res.status}): ${text}`);
             }
 
-            const data = await res.json();
-            if (!data.success) {
-                throw new Error(data.message || "Failed to fetch user");
+            const json = await res.json();
+            if (!json.success) {
+                throw new Error(json.message || "Failed to fetch user data");
             }
 
-            setUser(data.data);
+            setUser(json.data);
         } catch (err: unknown) {
             console.error("Error fetching user:", err);
-            setError(err instanceof Error ? err.message : "Somwthing went wrong");
+            setError(err instanceof Error ? err.message : "Something went wrong");
         } finally {
             setLoading(false);
         }
@@ -62,25 +69,34 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
      * Redirect user to GitHub for repo access authorization
      */
     const connectToGithub = async (): Promise<void> => {
+        setGithubLoading(true);
+        setGithubError(null);
+
         try {
-            setGithubLoading(true);
-            const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID!;
-            const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL}/github/callback`;
+            const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
+            if (!clientId) throw new Error("GitHub Client ID is not defined");
+            if (!baseUrl) throw new Error("Base URL is not defined");
+
+            const redirectUri = `${baseUrl}/github/callback`;
             const scope = "repo";
 
-            // Encode current user as JWT for safe state tracking
             const token = localStorage.getItem("token");
             if (!token) throw new Error("Missing user token");
 
-            const state = token; // we use token as 'state' to verify identity
+            // Use token as state to verify identity on callback
+            const state = token;
 
             const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
                 redirectUri
             )}&scope=${scope}&state=${state}`;
 
+            // Redirect user to GitHub OAuth page
             window.location.href = authUrl;
-        } catch (error: unknown) {
-            setGithubError(error instanceof Error ? error.message : "Something went wrong");
+        } catch (err: unknown) {
+            console.error("GitHub connection error:", err);
+            setGithubError(err instanceof Error ? err.message : "Something went wrong");
         } finally {
             setGithubLoading(false);
         }

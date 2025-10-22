@@ -20,106 +20,121 @@ import {
 import { Input } from "@/components/ui/input"
 import { Loader } from "lucide-react"
 import { useState } from "react"
-import z from "zod"
+import { z } from "zod"
 import Script from "next/script"
+import { toast } from "sonner"
 
-const creditSchema = z.object({
-    credits: z
-        .number("Enter a valid number")
-        .min(10, "Minimum 10 credits required")
-        .max(10000, "Maximum 10,000 credits allowed"),
-})
-
-const CREDIT_RATE = 1
-
-type Inputs = z.infer<typeof creditSchema>
+const CREDIT_RATE = 2
 
 export function BuyCreditsForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        watch,
-    } = useForm<Inputs>({
-        resolver: zodResolver(creditSchema),
-        defaultValues: { credits: 0 },
-    })
 
     const [resError, setResError] = useState<string>("")
     const [loading, setLoading] = useState<boolean>(false)
-    const credits = watch("credits") || 0
+    const [credits, setCredits] = useState<number>(0);
+
     const total = credits * CREDIT_RATE
 
-    const onSubmit: SubmitHandler<Inputs> = async (data) => {
+    const onSubmit = async () => {
         try {
             setLoading(true)
             setResError("")
-            const token = localStorage.getItem('token')
+            const token = localStorage.getItem("token")
+            if (!token) throw new Error("Authentication token not found")
 
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+            if (credits < 10) {
+                throw new Error('Buy Minimum 10 credits');
+            } else if (credits > 50) {
+                throw new Error('You only buy maximum 50 credits');
+            }
+
             const res = await fetch(`http://localhost:8003/payment/create-order`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "Bearer " + token
+                    Authorization: `Bearer ${token}`,
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    amount: total * 100,
-                    credits: data.credits,
+                    amount: total * 100, // in paise
+                    credits: credits,
                 }),
             })
+
+            if (!res.ok) {
+                const text = await res.text()
+                throw new Error(`Order creation failed (${res.status}): ${text}`)
+            }
 
             const json = await res.json()
             if (!json.success) throw new Error(json.error || "Order creation failed")
 
-            const { orderId, amount, currency } = json
+            const { orderId, amount, currency } = json?.data;
 
-            // Open Razorpay Checkout
             const options = {
                 key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: amount,
-                currency: currency,
+                amount,
+                currency,
                 name: "Dumcel",
-                description: `${data.credits} credits purchase`,
+                description: `${credits} credits purchase`,
                 order_id: orderId,
+                theme: { color: "#0f172a" },
                 handler: async (response: any) => {
+                    try {
+                        if (
+                            !response.razorpay_order_id ||
+                            !response.razorpay_payment_id ||
+                            !response.razorpay_signature
+                        ) {
+                            throw new Error("Incomplete payment response")
+                        }
 
-                    console.log('credits ', data.credits);
+                        const verifyRes = await fetch(
+                            `http://localhost:8003/payment/verify-order`,
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: `Bearer ${token}`,
+                                },
+                                body: JSON.stringify({
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                    credits: credits,
+                                    amount: total,
+                                }),
+                            }
+                        )
 
-                    const verifyRes = await fetch(`http://localhost:8003/payment/verify-order`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": "Bearer " + token
-                        },
-                        body: JSON.stringify({
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_signature: response.razorpay_signature,
-                            credits: data.credits,
-                            amount: total
-                        }),
-                    })
-                    const verifyJson = await verifyRes.json()
+                        const verifyJson = await verifyRes.json()
 
-                    if (verifyJson.success) {
+                        if (!verifyJson.success) {
+                            throw new Error(verifyJson.error || "Payment verification failed")
+                        }
+
                         alert("Payment verified successfully!")
-                    } else {
-                        alert("Payment verification failed")
+                    } catch (err: any) {
+                        console.error("Payment verification error:", err)
+                        setResError(err.message || "Payment verification failed")
                     }
                 },
-                theme: { color: "#0f172a" },
+                modal: {
+                    ondismiss: () => {
+                        setLoading(false)
+                        toast.info(`Payment Cancelled By User`)
+                    },
+                },
             }
 
             // @ts-ignore
             const rzp = new window.Razorpay(options)
             rzp.open()
-        } catch (err: any) {
-            setResError(err.message || "Something went wrong")
+        } catch (err: unknown) {
+            console.error("Order creation error:", err)
+            setResError(err instanceof Error ? err.message : "Something went wrong during order creation")
         } finally {
             setLoading(false)
         }
@@ -139,42 +154,27 @@ export function BuyCreditsForm({
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit(onSubmit)}>
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            onSubmit();
+                        }}>
                             <FieldGroup>
                                 <Field>
                                     <FieldLabel htmlFor="credits">Credits</FieldLabel>
                                     <Input
                                         id="credits"
-                                        type="text"
                                         inputMode="numeric"
-                                        pattern="[0-9]*"
-                                        maxLength={2} // allows max 2 digits (up to 50)
-                                        placeholder="Enter credits"
-                                        {...register("credits", {
-                                            setValueAs: (v) => (v === "" ? 0 : Number(v)),
-                                            validate: (v) => {
-                                                if (isNaN(v)) return "Only numbers are allowed";
-                                                if (v < 1) return "Minimum 1 credit required";
-                                                if (v > 50) return "Maximum 50 credits allowed";
-                                                return true;
-                                            },
-                                        })}
-                                        onKeyDown={(e) => {
-                                            // Prevent typing anything except digits, backspace, tab, delete, arrows
-                                            if (
-                                                !/[0-9]/.test(e.key) &&
-                                                !["Backspace", "Tab", "Delete", "ArrowLeft", "ArrowRight"].includes(e.key)
-                                            ) {
-                                                e.preventDefault();
-                                            }
+                                        pattern="\d*"
+                                        min={10}
+                                        max={50}
+                                        placeholder="Enter credits (10–50)"
+                                        value={credits === 0 ? 0 : credits} // shows empty initially
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            setCredits(Number(val))
                                         }}
                                         required
                                     />
-                                    {errors.credits && (
-                                        <p className="text-red-500 text-sm mt-1">
-                                            {errors.credits.message}
-                                        </p>
-                                    )}
                                 </Field>
 
                                 <div className="flex justify-between text-sm text-muted-foreground">
@@ -196,9 +196,13 @@ export function BuyCreditsForm({
                                             "Proceed to Pay"
                                         )}
                                     </Button>
-                                    <FieldDescription className="text-center">
-                                        Credits are non-refundable once purchased
-                                    </FieldDescription>
+                                    <p className="text-gray-300 text-sm mt-3 p-3 bg-amber-500/10 border-[0.5px] rounded-md border-amber-500/20">
+                                        Minimum 10 and maximum 50 credits can be purchased.
+                                        Credits are <span className="font-semibold text-amber-400">non-refundable</span>.
+                                        Don’t buy this if you’re trying to go production this setup will be shut down soon.
+                                        If you’re just curious or don’t mind spending a few bucks for fun, you’re welcome to proceed.
+                                    </p>
+
                                 </Field>
                             </FieldGroup>
 

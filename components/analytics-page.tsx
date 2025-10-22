@@ -21,6 +21,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { ChartContainer, ChartConfig, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { getCountryCode, getLast30Days } from '@/lib/utils';
+import Image from 'next/image';
+import { Globe } from 'lucide-react';
 
 // The geoUrl is used for the world map visualization
 const geoUrl =
@@ -69,16 +71,13 @@ const AnalyticsPage = ({ id, token }: { id: string; token: string }) => {
             try {
                 setLoading(true);
                 const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/analytics/${id}`, {
-                    method: 'GET',
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
                     },
                     cache: 'no-store',
                 });
 
                 if (!res.ok) throw new Error(`Failed to fetch project (${res.status})`);
-
                 const json = await res.json();
                 if (!json.success) throw new Error(json.error || 'Unexpected error');
 
@@ -131,22 +130,23 @@ const AnalyticsPage = ({ id, token }: { id: string; token: string }) => {
                         >
                             <div className="flex items-center space-x-2">
                                 {countryCode ? (
-                                    // <ReactCountryFlag
-                                    //     countryCode={countryCode}
-                                    //     svg
-                                    //     className="text-xl"
-                                    //     title={countryName}
-                                    // />
-                                    <>{countryCode}</>
-
+                                    <>
+                                        <Image
+                                            src={`https://flagcdn.com/16x12/${countryCode}.png`}
+                                            width={16}
+                                            height={12}
+                                            alt={countryCode}
+                                        />
+                                    </>
                                 ) : (
-                                    <span className="text-muted-foreground">🌐</span>
+                                    <span className="text-muted-foreground"><Globe size={14}/></span>
                                 )}
                                 <span className="text-sm font-medium truncate">{countryName}</span>
                             </div>
 
                             <Badge variant="secondary">{visitors} visitors</Badge>
                         </div>
+
                     );
                 })}
             </div>
@@ -162,7 +162,6 @@ const AnalyticsPage = ({ id, token }: { id: string; token: string }) => {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Total Unique Visitors</CardTitle>
-
                     </CardHeader>
                     <CardContent className='space-y-2'>
                         <div className="text-2xl font-bold">{analytics.totalUniqueVisitors}</div>

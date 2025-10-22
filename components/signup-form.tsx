@@ -61,36 +61,35 @@ export function SignupForm({
     const router = useRouter();
 
     const onSubmit: SubmitHandler<Inputs> = async (data) => {
+        setResErrors(""); // clear previous errors
+        setLoading(true);
 
         try {
-            setLoading(true);
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
-            if (!baseUrl) {
-                throw new Error("NEXT_PUBLIC_BASE_URL is not defined")
-            }
-            const res = await fetch(baseUrl + '/auth/signup', {
+            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+
+            const res = await fetch(`${baseUrl}/auth/signup`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: 'include',
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
                 body: JSON.stringify(data),
-            })
+            });
 
             const json = await res.json();
 
-            if (!json.success && json.error) {
-                setLoading(false)
-                setResErrors(json.error || "Something went wrong")
+            if (!res.ok || !json.success) {
+                throw new Error(json.error || "Something went wrong during signup");
             }
 
-            setLoading(false)
-            return router.push('/login');
-        } catch (error: unknown) {
-            setLoading(false)
-            setResErrors(error instanceof Error ? error.message : "Something went wrong")
+            // Signup successful
+            router.push("/login");
+
+        } catch (err: unknown) {
+            setResErrors(err instanceof Error ? err.message : "Something went wrong");
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     return (
         <div className={cn("flex flex-col gap-1.5", className)} {...props}>
