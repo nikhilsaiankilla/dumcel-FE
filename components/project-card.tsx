@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar'
-import { ArrowRightCircle, EllipsisIcon, Github, Trash } from 'lucide-react'
+import { ArrowRightCircle, EllipsisIcon, Github, Loader, Trash } from 'lucide-react'
 import Link from 'next/link'
 import { ProjectType } from '@/types'
 import { Button } from './ui/button'
@@ -22,7 +22,7 @@ const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (i
             const token = localStorage.getItem('token');
 
             setTimeout(async () => {
-                const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL + `/project/delete/${project._id}`, {
+                const res = await fetch(`/api/project/delete/${project._id}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -72,8 +72,7 @@ const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (i
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align='end'>
                                 <DropdownMenuLabel onClick={deleteProject} className='cursor-pointer flex items-center gap-2 hover:text-red-500 capitalize duration-150 ease-in-out'>
-                                    <Trash size={14}/>
-                                    Delete
+                                    {loading  ? <Loader size={14} className='animate-spin'/> : <Trash size={14}/>} Delete Project
                                 </DropdownMenuLabel>
                                 {/* <DropdownMenuSeparator />
                                 <DropdownMenuItem>Profile</DropdownMenuItem>

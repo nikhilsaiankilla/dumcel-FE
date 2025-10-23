@@ -53,8 +53,8 @@ const DeploymentTab = ({ projectId }: { projectId?: string }) => {
             const stateQuery = state !== "all" ? `&state=${encodeURIComponent(state)}` : "";
 
             const url = projectId
-                ? `${process.env.NEXT_PUBLIC_BASE_URL}/project/get-all-deployments/${projectId}?page=${pageNum}&limit=${limit}${stateQuery}`
-                : `${process.env.NEXT_PUBLIC_BASE_URL}/project/get-all-deployments?page=${pageNum}&limit=${limit}${stateQuery}`;
+                ? `/api/project/get-all-deployments/${projectId}?page=${pageNum}&limit=${limit}${stateQuery}`
+                : `/api/project/get-all-deployments?page=${pageNum}&limit=${limit}${stateQuery}`;
 
             const res = await fetch(url, {
                 method: "GET",

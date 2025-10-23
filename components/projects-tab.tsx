@@ -38,7 +38,7 @@ const ProjectsTab = () => {
             try {
                 setLoading(true);
                 const token = localStorage.getItem('token');
-                const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL + `/project/get-all-projects?page=${pageNum}&limit=${limit}`, {
+                const res = await fetch(`/api/project/get-all-projects?page=${pageNum}&limit=${limit}`, {
                     method: "GET",
                     headers: {
                         "Authorization": "Bearer " + token,

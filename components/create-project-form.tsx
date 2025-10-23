@@ -73,7 +73,7 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
             if (!token) return;
 
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/github/repos`, {
+                const res = await fetch(`/api/github/repos`, {
                     headers: { Authorization: "Bearer " + token },
                 });
                 const json = await res.json();
@@ -124,7 +124,7 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
         setSubdomainAvailable(null);
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/project/check-subdomain?subdomain=${subdomain}`);
+            const res = await fetch(`/api/project/check-subdomain?subdomain=${subdomain}`);
 
             // 2. Check for HTTP errors (e.g., 404, 500)
             if (!res.ok) {
@@ -159,13 +159,10 @@ export function CreateProjectForm({ className, ...props }: React.ComponentProps<
             setLoading(true);
             setResError("");
 
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL not set");
-
             const token = localStorage.getItem("token");
             if (!token) throw new Error("Token not found, please login again");
 
-            const res = await fetch(`${baseUrl}/project/add-project`, {
+            const res = await fetch(`/api/project/add-project`, {
                 method: "POST",
                 headers: {
                     Authorization: "Bearer " + token,

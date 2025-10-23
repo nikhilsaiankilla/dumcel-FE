@@ -19,6 +19,7 @@ interface LogItem {
 }
 
 const POLLING_INTERVAL = 3000 // 3 seconds
+const MAX_EMPTY_FETCHES = 5   // stop after 5 consecutive empty fetches
 
 const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId }) => {
     const [logs, setLogs] = useState<LogItem[]>([])
@@ -27,6 +28,7 @@ const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId })
     const [isLoading, setIsLoading] = useState<boolean>(true)
 
     const lastTimestampRef = useRef<string>('1970-01-01 00:00:00')
+    const emptyFetchCountRef = useRef<number>(0)
     const logsEndRef = useRef<HTMLDivElement>(null)
 
     const scrollToBottom = () => {
@@ -38,18 +40,14 @@ const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId })
 
         try {
             const token = localStorage.getItem('token')
-
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}/project/logs/${deploymentId}?lastTimestamp=${encodeURIComponent(
-                    lastTimestampRef.current
-                )}&limit=200`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                    },
-                }
-            )
+            const res = await fetch(`/api/project/logs/${deploymentId}?lastTimestamp=${encodeURIComponent(
+                lastTimestampRef.current
+            )}&limit=200`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            })
 
             if (!res.ok) throw new Error('Failed to fetch logs')
 
@@ -60,6 +58,7 @@ const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId })
                 setLogs((prev) => [...prev, ...newLogs])
                 lastTimestampRef.current = newLogs[newLogs.length - 1].timestamp
                 scrollToBottom()
+                emptyFetchCountRef.current = 0 // reset counter since we got logs
 
                 // Stop polling if final step is reached
                 const lastLog = newLogs[newLogs.length - 1]
@@ -68,6 +67,12 @@ const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId })
                     lastLog.log.toLowerCase().includes('successfully') ||
                     lastLog.type === 'success'
                 ) {
+                    setIsFinished(true)
+                }
+            } else {
+                // Increment empty fetch counter
+                emptyFetchCountRef.current += 1
+                if (emptyFetchCountRef.current >= MAX_EMPTY_FETCHES) {
                     setIsFinished(true)
                 }
             }
@@ -98,12 +103,8 @@ const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId })
             </div>
 
             <div className="flex-1 overflow-y-auto p-3 space-y-1.5 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                {error && (
-                    <div className="text-red-500 text-sm">Error: {error}</div>
-                )}
-                {isLoading && !error && (
-                    <div className="text-gray-400 text-sm">Loading logs...</div>
-                )}
+                {error && <div className="text-red-500 text-sm">Error: {error}</div>}
+                {isLoading && !error && <div className="text-gray-400 text-sm">Loading logs...</div>}
 
                 {logs.map((logItem, index) => (
                     <div
@@ -128,9 +129,7 @@ const BuildLogsContainer: React.FC<BuildLogsContainerProps> = ({ deploymentId })
 
                         <div className="text-gray-100 break-words whitespace-pre-wrap">
                             {logItem.log}
-                            {logItem.meta && (
-                                <span className="ml-2 text-gray-500 text-xs">({logItem.meta})</span>
-                            )}
+                            {logItem.meta && <span className="ml-2 text-gray-500 text-xs">({logItem.meta})</span>}
                         </div>
                     </div>
                 ))}

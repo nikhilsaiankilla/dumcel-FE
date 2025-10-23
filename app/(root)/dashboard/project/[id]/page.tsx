@@ -25,23 +25,38 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
     let error: string | null = null;
 
     try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/project/getProject/${id}`, {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+        const cookieHeader = cookiesStore.get('token')?.value
+            ? `token=${cookiesStore.get('token')?.value}`
+            : '';
+
+        const res = await fetch(`${baseUrl}/api/project/get-project/${id}`, {
             method: 'GET',
             headers: {
-                Authorization: `Bearer ${token}`,
+                Cookie: cookieHeader,
                 'Content-Type': 'application/json',
             },
             cache: 'no-store',
         });
 
+        // const res = await fetch(`http://localhost:3000/api/project/get-project/${id}`, {
+        //     method: 'GET',
+        //     headers: {
+        //         Authorization: `Bearer ${token}`,
+        //         'Content-Type': 'application/json',
+        //     },
+        // });
+
         if (!res.ok) throw new Error(`Failed to fetch project (${res.status})`);
 
         const json = await res.json();
-        
+
         if (!json.success) throw new Error(json.error || 'Unexpected error');
 
         project = json?.data;
     } catch (err: unknown) {
+        console.log(err);
+
         error = err instanceof Error ? err.message : 'Something went wrong.';
     }
 
@@ -65,7 +80,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
     const bgClass = bgClassMap[state] || 'bg-gray-600';
 
     return (
-        <div className='w-full p-5 bg-background'>
+        <div className='w-full max-w-5xl mx-auto p-5 bg-background'>
 
             <div className='w-full py-6 flex items-start md:items-center justify-between flex-col lg:flex-row gap-5'>
                 <h1 className='text-lg md:text-2xl font-semibold leading-normal capitalize'>{project?.projectName}</h1>
@@ -78,7 +93,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                         </Button>
                     </Link>
 
-                    <Link href={`http:${project?.subDomain} ".localhost:8001"` || ""} target='_blank'>
+                    <Link href={`http://${project?.subDomain}.localhost:8001`} target='_blank'>
                         <Button className='cursor-pointer flex items-center gap-2 px-2 py-0.5'>
                             <ExternalLink size={14} />
                             Live
@@ -87,7 +102,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                 </div>
             </div>
 
-            <div className='w-full py-10 flex items-center justify-between gap-4 flex-wrap'>
+            <div className='w-full py-5 flex items-center justify-between gap-4 flex-wrap'>
                 <h1 className='text-lg md:text-2xl font-semibold leading-normal capitalize'>Production Deployment</h1>
                 <div className="flex items-center gap-2 flex-wrap">
                     <Link href={project?.gitUrl || ""} target='_blank'>
@@ -106,7 +121,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             </div>
 
             <div className='w-full p-3 rounded-md bg-gray-100/5 border border-gray-300/20 grid grid-cols-1 md:grid-cols-2'>
-                <div className='w-full aspect-video rounded-lg overflow-hidden border border-gray-300/20'>
+                <div className='w-full aspect-square rounded-lg overflow-hidden border border-gray-300/20'>
                     <Image
                         alt='Preview'
                         width={100}

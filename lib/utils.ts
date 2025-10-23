@@ -19,8 +19,7 @@ export function getLast30Days() {
   return days
 }
 
-export // Utility: map common country names to ISO codes
-  function getCountryCode(name: string) {
+export function getCountryCode(name: string) {
   if (!name) return null
   const map: Record<string, string> = {
     india: "IN",
@@ -35,4 +34,15 @@ export // Utility: map common country names to ISO codes
     unknown: "",
   }
   return map[name.toLowerCase()] || null
+}
+
+export const generateOTP = (): string => {
+    const limit = 6;
+    let OTP = "";
+
+    for (let i = 0; i < limit; i++) {
+        OTP += Math.floor(Math.random() * 10)
+    }
+
+    return OTP;
 }

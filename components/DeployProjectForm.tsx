@@ -46,8 +46,7 @@ const DeployProjectForm: React.FC<DeployProjectFormProps> = ({ projectId }) => {
                 return;
             }
 
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}/project/deploy/${projectId}`,
+            const res = await fetch(`/api/project/deploy/${projectId}`,
                 {
                     method: "POST",
                     headers: {
@@ -126,7 +125,7 @@ const DeployProjectForm: React.FC<DeployProjectFormProps> = ({ projectId }) => {
                     size="sm"
                     type="button"
                     onClick={addEnvVar}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 cursor-pointer"
                 >
                     <Plus size={14} /> Add Variable
                 </Button>
@@ -136,7 +135,7 @@ const DeployProjectForm: React.FC<DeployProjectFormProps> = ({ projectId }) => {
                 <Button
                     onClick={deployProject}
                     disabled={loading}
-                    className="flex items-center gap-2"
+                    className="flex items-center gap-2 w-full cursor-pointer py-3"
                 >
                     {loading ? (
                         <>

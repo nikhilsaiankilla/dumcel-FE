@@ -41,7 +41,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user }) => {
 
     const handleLogout = async () => {
         try {
-            const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/auth/logout", {
+            const res = await fetch("/api/auth/logout", {
                 method: "POST",
                 credentials: "include",
             });
@@ -64,7 +64,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ user }) => {
         setDeleting(true);
 
         try {
-            const res = await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/auth/delete/account", {
+            const res = await fetch("/api/auth/delete/account", {
                 method: "DELETE",
                 credentials: "include",
             });

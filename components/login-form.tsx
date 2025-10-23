@@ -36,74 +36,54 @@ const loginSchema = z.object({
 
 type Inputs = z.infer<typeof loginSchema>
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<Inputs>({
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
+  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
   })
 
-  const [resErrors, setResErrors] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
-  const [githubLoading, setgithubLoading] = useState<boolean>(false);
-
-  const router = useRouter();
+  const [resErrors, setResErrors] = useState<string>("")
+  const [loading, setLoading] = useState<boolean>(false)
+  const [githubLoading, setGithubLoading] = useState<boolean>(false)
+  const router = useRouter()
 
   const onSubmit: SubmitHandler<Inputs> = async (data) => {
-    setLoading(true);
-    setResErrors(""); // clear previous errors
+    setLoading(true)
+    setResErrors("")
 
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-      if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
-
-      const res = await fetch(`${baseUrl}/auth/login`, {
+      const res = await fetch(`/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
         body: JSON.stringify(data),
-      });
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) throw new Error(json.error || "Login failed")
 
-      const json = await res.json();
-
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || "Something went wrong during login");
-      }
-
-      // Save token and userId
-      localStorage.setItem("token", json.token);
-      localStorage.setItem("userId", json.userId);
-
-      router.push("/dashboard");
+      localStorage.setItem("token", json.token)
+      localStorage.setItem("userId", json.userId)
+      router.push("/dashboard")
     } catch (err: unknown) {
-      setResErrors(err instanceof Error ? err.message : "Something went wrong");
+      setResErrors(err instanceof Error ? err.message : "Something went wrong")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const loginWithGithub = () => {
-    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
-    const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL}/github/callback`;
-
-    const scope = "read:user,user:email";
-    const state = "login"; // used only to identify flow
+    setGithubLoading(true)
+    const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID
+    const redirectUri = `http://localhost:3000/api/github/callback`
+    const scope = "read:user,user:email"
+    const state = "login"
 
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
       redirectUri
-    )}&scope=${scope}&state=${state}`;
+    )}&scope=${scope}&state=${state}`
 
-    window.location.href = authUrl;
-  };
+    window.location.href = authUrl
+  }
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -151,9 +131,7 @@ export function LoginForm({
                   {loading ? <>Logging In <Loader className="animate-spin" /></> : "Login"}
                 </Button>
                 <Button variant="outline" type="button" onClick={loginWithGithub} className="cursor-pointer">
-                  {
-                    githubLoading ? "Logging In" : "Login with Github"
-                  }
+                  {githubLoading ? "Logging..." : "Login with Github"}
                 </Button>
                 <FieldDescription className="text-center">
                   Don&apos;t have an account? <a href="/signup">Sign up</a>

@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             const token = localStorage.getItem("token");
             if (!token) throw new Error("Authentication token not found");
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/auth/get-user`, {
+            const res = await fetch(`/api/auth/get-user`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
@@ -74,19 +74,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         try {
             const clientId = process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID;
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
             if (!clientId) throw new Error("GitHub Client ID is not defined");
-            if (!baseUrl) throw new Error("Base URL is not defined");
 
-            const redirectUri = `${baseUrl}/github/callback`;
+            const redirectUri = `http://localhost:3000/api/github/callback`;
             const scope = "repo";
 
-            const token = localStorage.getItem("token");
-            if (!token) throw new Error("Missing user token");
-
             // Use token as state to verify identity on callback
-            const state = token;
+            const state = "repo";
 
             const authUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
                 redirectUri
