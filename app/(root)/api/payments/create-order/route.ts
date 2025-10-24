@@ -1,21 +1,24 @@
-import Razorpay from "razorpay";
+import { authenticate } from "@/lib/auth";
+import { connectDb } from "@/utils/connectDb";
+import { getRazorpayClient } from "@/utils/initConfigs";
 import { NextRequest, NextResponse } from "next/server";
-
-// Choose Razorpay keys based on environment
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID
-const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET
-
-if (!razorpayKeyId || !razorpayKeySecret) throw new Error("Razorpay keys are not set");
-
-const razorpay = new Razorpay({
-    key_id: razorpayKeyId,
-    key_secret: razorpayKeySecret,
-});
 
 export async function POST(request: NextRequest) {
     try {
+        await connectDb();
+        const razorpay = getRazorpayClient();
         const body = await request.json();
         const { amount, currency = "INR", credits } = body;
+
+        const userFromReq = authenticate(request);
+        const userId = userFromReq?.userId;
+
+        if (!userId) {
+            return NextResponse.json(
+                { success: false, error: "Unauthenticated user" },
+                { status: 401 }
+            );
+        }
 
         if (!amount || !credits) {
             return NextResponse.json(

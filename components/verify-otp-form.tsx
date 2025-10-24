@@ -53,10 +53,10 @@ export function VerifyOtpForm({ className, email, ...props }: VerifyOtpFormProps
         setIsSubmitting(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+            // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            // if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
 
-            const res = await fetch(`${baseUrl}/auth/verify-otp`, {
+            const res = await fetch(`/api/auth/verify-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

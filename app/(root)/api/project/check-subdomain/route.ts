@@ -11,8 +11,16 @@ export async function GET(request: NextRequest) {
                 .regex(/^[a-z0-9-]+$/, "Subdomain must contain only lowercase letters, numbers, and hyphens"),
         });
 
-        const subDomainParam = request.nextUrl.searchParams.get("subDomain") || "";
-        const { subDomain } = schema.parse({ subDomain: subDomainParam });
+        const { searchParams } = new URL(request.url);
+        const subdomain = searchParams.get("subdomain") || "";
+
+        if (!subdomain) return NextResponse.json({
+            success: false,
+            available: false,
+            message: "Subdomain query parameter is required.",
+        });
+
+        const { subDomain } = schema.parse({ subDomain: subdomain });
 
         const existingProject = await ProjectModel.findOne({ subDomain });
 

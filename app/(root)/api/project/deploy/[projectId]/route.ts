@@ -3,19 +3,14 @@ import { ProjectModel } from "@/models/project.model";
 import { TokenModel } from "@/models/tokens.model";
 import { DeploymentState } from "@/types";
 import { NextRequest, NextResponse } from "next/server";
-import { ECSClient, RunTaskCommand } from "@aws-sdk/client-ecs";
+import { RunTaskCommand } from "@aws-sdk/client-ecs";
 import { authenticate } from "@/lib/auth";
-
-const ecsClient = new ECSClient({
-    region: "ap-south-1",
-    credentials: {
-        accessKeyId: process.env.ACCESS_KEY_ID!,
-        secretAccessKey: process.env.SECRET_ACCESS_KEY!,
-    },
-});
+import { getECSClient } from "@/utils/initConfigs";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
     try {
+        const ecsClient = getECSClient();
+
         const { projectId } = await params;
         if (!projectId) return NextResponse.json({ success: false, error: "Project ID is required" }, { status: 400 });
 

@@ -3,9 +3,13 @@ import { UserModel } from "@/models/user.model";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod";
 import bcrypt from "bcryptjs";
+import { connectDb } from "@/utils/connectDb";
 
 export async function POST(req: NextRequest) {
     try {
+        await connectDb();
+        console.log('inside the db');
+        
         const schema = z.object({
             name: z.string().min(3, "Name must be at least 3 characters"),
             email: z.string().email(),
@@ -43,7 +47,7 @@ export async function POST(req: NextRequest) {
 
         // Log credit transaction
         await CreditTransactionModel.create({
-            user: newUser._id,
+            userId: newUser._id,
             type: "credit",
             amount: 10,
             reason: "Welcome bonus for signing up",

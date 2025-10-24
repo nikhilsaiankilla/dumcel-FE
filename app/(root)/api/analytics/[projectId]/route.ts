@@ -1,22 +1,19 @@
 import { authenticate } from "@/lib/auth";
-import { createClient } from "@clickhouse/client";
+import { connectDb } from "@/utils/connectDb";
+import { getClickhouseClient } from "@/utils/initConfigs";
 import { NextRequest, NextResponse } from "next/server";
-
-const clickhouseClient = createClient({
-    url: process.env.CLICKHOUSE_URL,
-    database: process.env.DATABASE,
-    username: process.env.CLICKHOUSE_USER_NAME,
-    password: process.env.CLICKHOUSE_PASSWORD
-});
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ projectId: string }> }) {
     try {
+        await connectDb();
+        const clickhouseClient = getClickhouseClient();
+
         const userFromReq = authenticate(req);
         const userId = userFromReq?.userId;
 
         if (!userId) return NextResponse.json({ success: false, error: "Unauthenticated user" }, { status: 401 });
 
-        // FIX 1: Access dynamic route segment (projectId) from the 'params' object
+        // Access dynamic route segment (projectId) from the 'params' object
         const { projectId } = await params;
 
         if (!clickhouseClient) {
@@ -35,8 +32,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ proj
             );
         }
 
-        // FIX 3 (Minor Consistency): Use the more robust and readable 'INTERVAL 7 DAY' 
-        // for all ClickHouse queries for consistency.
         const last7DaysCondition = `timestamp >= now() - INTERVAL 7 DAY`;
 
         const [
@@ -116,18 +111,15 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ proj
                 topReferrers: referrerRows,
                 dailyVisitorsTrend: dailyVisitorsRows,
                 languagePreferences: languageRows,
-                // The optional chaining is good, but for safety with TS, 
-                // cast the global client to 'any' or define its type 
-                // on the global object's declaration.
                 averageVisitsPerIp: avgVisitsRows?.[0]?.avg_visits_per_ip || 0,
                 totalUniqueVisitors: totalUniqueVisitorsRows?.[0]?.total_unique_visitors || 0
             }
-        }, { status: 200 }); // Specify the status
+        }, { status: 200 }); 
 
     } catch (error: unknown) {
         console.error("Error fetching analytics:", error);
 
-        // FIX 2: Return a new NextResponse for error handling
+        // Return a new NextResponse for error handling
         return NextResponse.json(
             {
                 success: false,

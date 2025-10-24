@@ -53,10 +53,10 @@ export function ForgetPassForm({
         setResErrors(""); // Clear previous errors
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+            // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            // if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
 
-            const res = await fetch(`${baseUrl}/auth/forget-password`, {
+            const res = await fetch(`/api/auth/forget-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

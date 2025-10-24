@@ -1,7 +1,5 @@
 "use client"
 
-import { useForm, SubmitHandler } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -13,14 +11,12 @@ import {
 } from "@/components/ui/card"
 import {
     Field,
-    FieldDescription,
     FieldGroup,
     FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Loader } from "lucide-react"
 import { useState } from "react"
-import { z } from "zod"
 import Script from "next/script"
 import { toast } from "sonner"
 
@@ -50,7 +46,7 @@ export function BuyCreditsForm({
                 throw new Error('You only buy maximum 50 credits');
             }
 
-            const res = await fetch(`http://localhost:8003/payment/create-order`, {
+            const res = await fetch(`/api/payments/create-order`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -91,8 +87,7 @@ export function BuyCreditsForm({
                             throw new Error("Incomplete payment response")
                         }
 
-                        const verifyRes = await fetch(
-                            `http://localhost:8003/payment/verify-order`,
+                        const verifyRes = await fetch(`/api/payments/verify-order`,
                             {
                                 method: "POST",
                                 headers: {
@@ -114,8 +109,7 @@ export function BuyCreditsForm({
                         if (!verifyJson.success) {
                             throw new Error(verifyJson.error || "Payment verification failed")
                         }
-
-                        alert("Payment verified successfully!")
+                        toast.success("Payment successful! Credits added to your account.");
                     } catch (err: any) {
                         console.error("Payment verification error:", err)
                         setResError(err.message || "Payment verification failed")

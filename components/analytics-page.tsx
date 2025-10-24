@@ -6,10 +6,6 @@ import {
     Bar,
     XAxis,
     YAxis,
-    Tooltip,
-    ResponsiveContainer,
-    LineChart,
-    Line,
     CartesianGrid,
     PieChart,
     Pie,
@@ -23,10 +19,6 @@ import { ChartContainer, ChartConfig, ChartTooltip, ChartTooltipContent } from '
 import { getCountryCode, getLast30Days } from '@/lib/utils';
 import Image from 'next/image';
 import { Globe } from 'lucide-react';
-
-// The geoUrl is used for the world map visualization
-const geoUrl =
-    'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
 
 // Chart config
 const barChartConfig = {
@@ -70,7 +62,7 @@ const AnalyticsPage = ({ id, token }: { id: string; token: string }) => {
         const fetchAnalytics = async () => {
             try {
                 setLoading(true);
-                const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/analytics/${id}`, {
+                const res = await fetch(`/api/analytics/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

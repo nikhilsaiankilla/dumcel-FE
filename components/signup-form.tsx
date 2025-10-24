@@ -65,10 +65,7 @@ export function SignupForm({
         setLoading(true);
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
-
-            const res = await fetch(`${baseUrl}/auth/signup`, {
+            const res = await fetch(`/api/auth/signup`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

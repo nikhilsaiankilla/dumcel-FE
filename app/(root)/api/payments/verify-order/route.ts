@@ -1,27 +1,25 @@
-import Razorpay from "razorpay";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { CreditPurchaseModel } from "@/models/payment.model";
 import { UserModel } from "@/models/user.model";
 import { CreditTransactionModel } from "@/models/creditTransaction.model";
+import { connectDb } from "@/utils/connectDb";
+import { authenticate } from "@/lib/auth";
 
-// Razorpay keys
-const razorpayKeyId = process.env.RAZORPAY_KEY_ID
 const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET
 
 export async function POST(request: NextRequest) {
     try {
-        const userId = (request as any).user?.userId;
+        await connectDb();
+        const userFromReq = authenticate(request);
+        const userId = userFromReq?.userId;
+
         if (!userId) {
-            return NextResponse.json({ success: false, error: "Unauthenticated user" }, { status: 401 });
+            return NextResponse.json(
+                { success: false, error: "Unauthenticated user" },
+                { status: 401 }
+            );
         }
-
-        if (!razorpayKeyId || !razorpayKeySecret) throw new Error("Razorpay keys are not set");
-
-        const razorpay = new Razorpay({
-            key_id: razorpayKeyId,
-            key_secret: razorpayKeySecret,
-        });
 
         const body = await request.json();
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, credits, amount } = body;
@@ -31,6 +29,10 @@ export async function POST(request: NextRequest) {
                 { success: false, error: "Missing payment verification fields" },
                 { status: 400 }
             );
+        }
+
+        if (!razorpayKeySecret) {
+            return NextResponse.json({ success: false, error: "Razorpay key secret missing" }, { status: 400 });
         }
 
         // Verify Razorpay signature

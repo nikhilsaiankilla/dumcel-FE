@@ -44,8 +44,7 @@ const CreditUsageTab = () => {
             const token = localStorage.getItem("token");
             if (!token) throw new Error("Authentication token not found");
 
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BASE_URL}/credits?page=${pageNum}&limit=${limit}`,
+            const res = await fetch(`/api/credits?page=${pageNum}&limit=${limit}`,
                 {
                     method: "GET",
                     headers: {

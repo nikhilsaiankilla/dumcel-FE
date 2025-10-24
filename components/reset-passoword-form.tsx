@@ -62,10 +62,10 @@ export function ResetPasswordForm({
         setSuccess("");
 
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-            if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
+            // const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+            // if (!baseUrl) throw new Error("NEXT_PUBLIC_BASE_URL is not defined");
 
-            const res = await fetch(`${baseUrl}/auth/reset-password`, {
+            const res = await fetch(`/api/auth/reset-password`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

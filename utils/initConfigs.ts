@@ -1,56 +1,94 @@
 import { ECSClient } from "@aws-sdk/client-ecs";
 import { Kafka } from "kafkajs";
 import { createClient } from "@clickhouse/client";
+import Razorpay from "razorpay";
 
-declare global {
-    var ecsClient: any | undefined;
-    var kafka: any | undefined;
-    var clickhouseClient: any | undefined;
-}
+// Private cached instances
+let ecsClient: ECSClient | null = null;
+let kafka: Kafka | null = null;
+let clickhouseClient: ReturnType<typeof createClient> | null = null;
+let razorpay: Razorpay | null = null;
 
-export const initConfigs = () => {
+/** ---------------- AWS ECS Client ---------------- **/
+export const getECSClient = () => {
+    if (ecsClient) return ecsClient;
 
-    const isMissingAwsSecrets =
-        (!(process.env.ACCESS_KEY_ID || global.secrets?.accessKeyId) ||
-            !(process.env.SECRET_ACCESS_KEY || global.secrets?.secretAccessKey) ||
-            !(process.env.KAFKA_CA_CERTIFICATE || global.secrets?.kafka_ca_certificate));
+    const accessKeyId = process.env.ACCESS_KEY_ID
+    const secretAccessKey =
+        process.env.SECRET_ACCESS_KEY
 
-    if (isMissingAwsSecrets) {
-        throw new Error("AWS or Kafka secrets are missing from both process.env and global.secrets.");
-    }
+    if (!accessKeyId || !secretAccessKey)
+        throw new Error("Missing AWS credentials.");
 
-    const ecsClient = new ECSClient({
+    ecsClient = new ECSClient({
         region: "ap-south-1",
-        credentials: {
-            accessKeyId: process.env.ACCESS_KEY_ID || global?.secrets?.accessKeyId,
-            secretAccessKey: process.env.SECRET_ACCESS_KEY || global?.secrets?.secretAccessKey
-        }
+        credentials: { accessKeyId, secretAccessKey },
     });
 
-    const kafka = new Kafka({
-        clientId: `api-server`,
-        brokers: [process.env.KAFKA_BROKER || global?.secrets?.kafka_broker],
+    return ecsClient;
+};
+
+/** ---------------- Kafka Client ---------------- **/
+export const getKafkaClient = () => {
+    if (kafka) return kafka;
+
+    const broker = process.env.KAFKA_BROKER
+    const ca = process.env.KAFKA_CA_CERTIFICATE
+    const username = process.env.KAFKA_USER_NAME
+    const password = process.env.KAFKA_PASSWORD
+
+    if (!broker || !ca || !username || !password)
+        throw new Error("Missing Kafka configuration.");
+
+    kafka = new Kafka({
+        clientId: "api-server",
+        brokers: [broker],
         ssl: {
             rejectUnauthorized: false,
-            ca: [process.env.KAFKA_CA_CERTIFICATE || global?.secrets?.kafka_ca_certificate.trim()]
+            ca: [ca.trim()],
         },
         sasl: {
-            username: process.env.KAFKA_USER_NAME || global?.secrets?.kafka_user_name,
-            password: process.env.KAFKA_PASSWORD || global?.secrets?.kafka_password,
-            mechanism: "plain"
-        }
+            mechanism: "plain",
+            username,
+            password,
+        },
     });
 
-    const clickhouseClient = createClient({
-        url: process.env.CLICKHOUSE_URL || global?.secrets?.clickhouse_url,
-        database: process.env.DATABASE || global?.secrets?.database,
-        username: process.env.CLICKHOUSE_USER_NAME || global?.secrets?.clickhouse_user_name,
-        password: process.env.CLICKHOUSE_PASSWORD || global?.secrets?.clickhouse_password
+    return kafka;
+};
+
+/** ---------------- ClickHouse Client ---------------- **/
+export const getClickhouseClient = () => {
+    if (clickhouseClient) return clickhouseClient;
+
+    const url = process.env.CLICKHOUSE_URL;
+    const database = process.env.DATABASE;
+    const username = process.env.CLICKHOUSE_USER_NAME;
+    const password = process.env.CLICKHOUSE_PASSWORD;
+
+    if (!url || !username || !password)
+        throw new Error("Missing ClickHouse configuration.");
+
+    clickhouseClient = createClient({ url, database, username, password });
+
+    return clickhouseClient;
+};
+
+/** ---------------- Razorpay Client ---------------- **/
+export const getRazorpayClient = () => {
+    if (razorpay) return razorpay;
+
+    const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
+    const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!razorpayKeyId || !razorpayKeySecret)
+        throw new Error("Razorpay keys are not set.");
+
+    razorpay = new Razorpay({
+        key_id: razorpayKeyId,
+        key_secret: razorpayKeySecret,
     });
 
-    global.ecsClient = ecsClient;
-    global.kafka = kafka;
-    global.clickhouseClient = clickhouseClient;
+    return razorpay;
+};
 
-    console.log('Intialised the clickhouse and kafka');
-} 

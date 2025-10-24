@@ -1,9 +1,11 @@
 import { authenticate } from "@/lib/auth";
 import { UserModel } from "@/models/user.model";
+import { connectDb } from "@/utils/connectDb";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
     try {
+        await connectDb();
         const userFromReq = authenticate(req);
         const userId = userFromReq?.userId;
 
