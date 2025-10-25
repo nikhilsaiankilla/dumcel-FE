@@ -9,7 +9,7 @@ interface BuildLogsContainerProps {
     deploymentId: string
 }
 
-interface LogItem {
+export interface LogItem {
     event_id: string
     project_id?: string
     deployment_id: string
