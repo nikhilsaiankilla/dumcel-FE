@@ -12,6 +12,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import CustomBadge from './custom-badge'
 
 const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (id: string) => void }) => {
     const [loading, setLoading] = useState<boolean>(false);
@@ -64,15 +65,16 @@ const ProjectCard = ({ project, onDelete }: { project: ProjectType, onDelete: (i
                     </div>
                 </div>
 
-                <div className='flex items-center gap-4'>
-                    <span className='p-2 rounded-lg hover:bg-gray-300/20 transition-all duration-150 ease-in-out'>
+                <div className='flex items-center justify-center gap-1'>
+                    <CustomBadge variant='state' type={project?.latestState || "not started"} className="capitalize"/>
+                    <span className='p-1 rounded-lg hover:bg-gray-300/20 transition-all duration-150 ease-in-out'>
                         <DropdownMenu>
                             <DropdownMenuTrigger>
-                                <EllipsisIcon />
+                                <EllipsisIcon size={18}/>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align='end'>
-                                <DropdownMenuLabel onClick={deleteProject} className='cursor-pointer flex items-center gap-2 hover:text-red-500 capitalize duration-150 ease-in-out'>
-                                    {loading  ? <Loader size={14} className='animate-spin'/> : <Trash size={14}/>} Delete Project
+                                <DropdownMenuLabel onClick={deleteProject} className='cursor-pointer flex items-center gap-2 hover:text-red-500 capitalize duration-150 ease-in-out text-sm'>
+                                    {loading  ? <Loader size={14} className='animate-spin'/> : <Trash size={12}/>} Delete Project
                                 </DropdownMenuLabel>
                                 {/* <DropdownMenuSeparator />
                                 <DropdownMenuItem>Profile</DropdownMenuItem>

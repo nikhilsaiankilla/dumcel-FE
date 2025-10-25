@@ -4,6 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '../ui/badge';
+import CustomBadge from '../custom-badge';
 
 export const DeploymentColumns: ColumnDef<DeploymentType>[] = [
     {
@@ -21,33 +22,15 @@ export const DeploymentColumns: ColumnDef<DeploymentType>[] = [
         accessorKey: "state",
         header: "Status",
         cell: ({ row }) => {
-            const state: string = row.getValue("state");
-
-            let variant = 'bg-gray-300'
-
-            switch (state) {
-                case "not started":
-                    variant = "bg-gray-500";
-                    break;
-                case "queued":
-                    variant = "bg-blue-500";
-                    break;
-                case "in progress":
-                    variant = "bg-yellow-500";
-                    break;
-                case "ready":
-                    variant = "bg-green-500";
-                    break;
-                case "failed":
-                    variant = "bg-red-500";
-                    break;
-            }
+            const state: string = row.getValue("state")
 
             return (
-                <Badge className={`capitalize ${variant} text-white`}>
-                    {state}
-                </Badge>
-            );
+                <CustomBadge
+                    variant="state"   // tells the badge to use state-based styling
+                    type={state}      // passes the actual state value
+                    className="capitalize"
+                />
+            )
         },
     },
     {

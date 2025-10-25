@@ -1,4 +1,5 @@
 import BuildLogsContainer from '@/components/build-logs-container';
+import CustomBadge from '@/components/custom-badge';
 import DeployProjectForm from '@/components/DeployProjectForm';
 import { Button } from '@/components/ui/button';
 import { ProjectType } from '@/types';
@@ -105,7 +106,7 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
             <div className='w-full py-5 flex items-center justify-between gap-4 flex-wrap'>
                 <h1 className='text-lg md:text-2xl font-semibold leading-normal capitalize'>Production Deployment</h1>
                 <div className="flex items-center gap-2 flex-wrap">
-                    <Link href={project?.gitUrl || ""} target='_blank'>
+                    <Link href={"#build-logs"}>
                         <Button variant={'outline'} className='cursor-pointer flex items-center gap-2 px-2 py-1.5'>
                             <BrickWall size={16} />
                             Build Logs
@@ -153,12 +154,11 @@ const page = async ({ params }: { params: Promise<{ id: string }> }) => {
                         <h5 className='text-xs capitalize tracking-wide text-gray-400 font-normal'>
                             Status
                         </h5>
-                        <div className='flex items-center gap-2'>
-                            <span className={`p-1 ring-2 rounded-full ${bgClass} shadow-sm`} />
-                            <p className='capitalize text-sm text-gray-200 font-semibold tracking-wide'>
-                                {state}
-                            </p>
-                        </div>
+                        <CustomBadge
+                            variant="state"   // tells the badge to use state-based styling
+                            type={state}      // passes the actual state value
+                            className="capitalize"
+                        />
                     </div>
 
                     {/* Created On */}

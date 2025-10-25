@@ -5,6 +5,7 @@ import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { ICreditPurchase } from "../payments-tab";
 import { Badge } from "../ui/badge";
+import CustomBadge from "../custom-badge";
 
 export const PaymentsColumns: ColumnDef<ICreditPurchase>[] = [
     {
@@ -33,19 +34,16 @@ export const PaymentsColumns: ColumnDef<ICreditPurchase>[] = [
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-            const status: string = row.getValue("status");
+            const status: string = row.getValue("status")
 
-            // Map status to badge styles
-            const badgeMap: Record<string, string> = {
-                created: "bg-yellow-400/40 border border-yellow-500 text-white",
-                paid: "bg-green-300/40 border border-green-500 text-white",
-                failed: "bg-red-600 border border-red-700 text-white",
-                default: "bg-gray-600 text-white",
-            };
-
-            const badgeClass = badgeMap[status] || badgeMap.default;
-
-            return <Badge className={`capitalize ${badgeClass}`}>{status}</Badge>;
+            // Pass status directly to CustomBadge with a "status" variant
+            return (
+                <CustomBadge
+                    variant="state" // or "status" if you want, internally treated the same as state
+                    type={status}
+                    className="capitalize"
+                />
+            )
         },
     },
     {

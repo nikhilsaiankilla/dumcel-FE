@@ -3,6 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { CreditUsageType } from "../credit-usage-tab";
 import { Badge } from "../ui/badge";
+import CustomBadge from "../custom-badge";
 
 export const CreditUsageColumns: ColumnDef<CreditUsageType>[] = [
     {
@@ -17,13 +18,11 @@ export const CreditUsageColumns: ColumnDef<CreditUsageType>[] = [
         accessorKey: "type",
         header: "Type",
         cell: ({ row }) => {
-            const type: string = row.getValue("type");
-            const badgeClass =
-                type === "credit"
-                    ? "bg-green-300/40 border-[0.5px] border-green-500/50 text-white"
-                    : "bg-red-600 border border-red-700 text-white";
+            const type: string = row.getValue("type")
 
-            return <Badge className={`capitalize ${badgeClass}`}>{type}</Badge>;
+            return (
+                <CustomBadge variant="type" type={type} className="capitalize" />
+            )
         },
     },
     {

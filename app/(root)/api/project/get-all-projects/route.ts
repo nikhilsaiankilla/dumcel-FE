@@ -1,4 +1,5 @@
 import { authenticate } from "@/lib/auth";
+import { DeploymentModel } from "@/models/deployment.model";
 import { ProjectModel } from "@/models/project.model";
 import { connectDb } from "@/utils/connectDb";
 import { NextRequest, NextResponse } from "next/server";
@@ -17,15 +18,32 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get("limit") || "10");
         const skip = (page - 1) * limit;
 
-        const [projects, totalCount] = await Promise.all([
-            ProjectModel.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit),
-            ProjectModel.countDocuments({ userId }),
-        ]);
+        const projects = await ProjectModel.find({ userId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean();
+
+        const projectsWithState = await Promise.all(
+            projects.map(async (project) => {
+                const latestDeployment = await DeploymentModel.findOne({ projectId: project._id })
+                    .sort({ createdAt: -1 })
+                    .select("state")
+                    .lean();
+
+                return {
+                    ...project,
+                    latestState: latestDeployment?.state || "not started",
+                };
+            })
+        );
+
+        const totalCount = await ProjectModel.countDocuments({ userId });
 
         return NextResponse.json({
             success: true,
             data: {
-                projects,
+                projects: projectsWithState,
                 pagination: {
                     total: totalCount,
                     page,

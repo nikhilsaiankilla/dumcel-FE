@@ -6,6 +6,7 @@ export interface ProjectType {
     subDomain: string,
     createdAt: string,
     updatedAt?: string,
+    latestState?: DeploymentState,
     deployment: {
         latestDeploymentId?: string,
         state?: DeploymentState,
